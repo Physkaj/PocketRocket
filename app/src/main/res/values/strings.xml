@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PocketRocket</string>
+    <string name="exit_button">Exit</string>
+    <string name="options_button">Options</string>
+    <string name="play_button">Play</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="pocket_rocket">"Pocket Rocket"</string>
+</resources>
