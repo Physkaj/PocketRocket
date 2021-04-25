@@ -1,47 +1,66 @@
 package com.example.pocketrocket.control
 
+import android.content.Context
+import android.os.SystemClock.sleep
+import android.util.Log
 import android.view.SurfaceHolder
-import com.example.pocketrocket.model.GameWorld
+import java.util.logging.Handler
 
-open class GameMaster(holder: SurfaceHolder) {
-    private val gameThread = GameThread(holder)
-    private var world: GameWorld? = null
-
-    companion object {
-        private var instance: GameMaster? = null
-        val tickMillis: Long
-            get() = instance?.world?.tickMillis ?: 0L
-    }
+/*
+ * GameMaster controls both the game thread, the games assets and the game itself.
+ * It is responsible of bridging the model and the view.
+ */
+abstract class GameMaster(holder: SurfaceHolder, private val context: Context) :
+    SurfaceHolder.Callback {
+    protected val gameClock = GameClock(holder)
+    private var gameThread: Thread? = null
+    var surfaceWidth: Int = 0
+        private set
+    var surfaceHeight: Int = 0
+        private set
 
     init {
-        if (instance != null)
-            throw InstantiationException("GameMaster is a singleton")
-        instance = this
+        holder.addCallback(this)
     }
 
-    fun setupWorld(w: GameWorld) {
-        world = w
-        gameThread.targetFPS = 60
-        gameThread.targetMillisPerUpdate = world!!.tickMillis
-        gameThread.onDraw = { world!!.draw(it) }
-        gameThread.onUpdate = { world!!.update() }
+    abstract fun setupGame()
+
+    open fun destroyGame() {
+        stopGame()
     }
 
-    fun destroyWorld() {
-        stopWorld()
-        world = null
+    open fun startGame() {
+        if (!gameClock.isRunning) {
+            gameClock.start()
+            gameThread = Thread(gameClock).also { it.start() }
+        }
     }
 
-    fun startWorld() {
-        if (world != null && !gameThread.isRunning)
-            gameThread.startThread()
+    abstract fun resizeGame(width: Int, height: Int)
+
+    open fun stopGame() {
+        gameClock.stop()
+        gameThread?.join()
+        gameThread = null
     }
 
-    fun reconfigureWorld(width: Int, height: Int) {
-        world?.reconfigure(width, height)
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        surfaceWidth = holder.surfaceFrame.width()
+        surfaceHeight = holder.surfaceFrame.height()
+        setupGame()
+        startGame()
     }
 
-    fun stopWorld() {
-        gameThread.stopThread()
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        stopGame()
+        surfaceWidth = width
+        surfaceHeight = height
+        Log.d("GM", "surfaceChanged: $width, $height")
+        resizeGame(width, height)
+        startGame()
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        destroyGame()
     }
 }

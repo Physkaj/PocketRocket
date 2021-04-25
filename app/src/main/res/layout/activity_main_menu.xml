@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".gui.MainMenuActivity">
+    tools:context=".view.MainMenuActivity">
 
-    <com.example.pocketrocket.gui.StarFieldSurfaceView
-        android:id="@+id/star_field_surface_view"
+    <SurfaceView
+        android:id="@+id/main_menu_surface_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:keepScreenOn="true" />

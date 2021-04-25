@@ -3,8 +3,17 @@ package com.example.pocketrocket.model
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Picture
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.VectorDrawable
+import android.os.Build
+import android.util.Log
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
+import androidx.core.content.res.ResourcesCompat
+import com.example.pocketrocket.R
 import com.example.pocketrocket.control.GameMaster
+import com.example.pocketrocket.control.MainMenuMaster
 import com.example.pocketrocket.utils.*
 import kotlin.random.Random
 
@@ -14,7 +23,6 @@ class BackgroundStar(
     vel: Vec2D = RadVec2D(),
     var starRadius: Float = 5.0f
 ) : GameObject() {
-
     // Position relative to the origin
     var relPos: RadVec2D = pos.getRadVec2D()
     var origin: LinVec2D = ori.getLinVec2D()
@@ -53,7 +61,7 @@ class BackgroundStar(
             else -> throw IllegalArgumentException("Illegal star state: $starState")
         }
 
-        stateDuration += GameMaster.tickMillis
+        stateDuration += MainMenuMaster.tickMillis
         if (stateDuration >= blinkPeriod) {
             starState = 1 - starState
             stateDuration %= blinkPeriod
@@ -67,12 +75,12 @@ class BackgroundStar(
     }
 }
 
-class StarField(w: Int, h: Int, t: Long) : GameWorld(w, h, t) {
+class StarField(var width: Int, var height: Int, var tickMillis: Long) : GameObject() {
     private val starsList: MutableList<BackgroundStar> = mutableListOf()
     private var nextSpawnTick: Int = 0
     private var maxRadius2 = width * width + height * height
 
-    override fun reconfigure(width: Int, height: Int) {
+    fun resize(width: Int, height: Int) {
         this.width = width
         this.height = height
         maxRadius2 = width * width + height * height
