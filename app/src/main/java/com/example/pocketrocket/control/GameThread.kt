@@ -19,12 +19,7 @@ class GameThread(val surfaceHolder: SurfaceHolder) : Thread() {
         }
     var averageFPS: Float = 0f
         private set
-    var targetMillisPerUpdate: Float = 0f
-    var targetUPS: Long = 60
-        set(value) {
-            field = value
-            targetMillisPerUpdate = FPSToMillisPerFrame(value)
-        }
+    var targetMillisPerUpdate: Long = 0L
     var averageUPS: Float = 0f
         private set
     var onUpdate: (() -> Unit)? = null
@@ -36,8 +31,10 @@ class GameThread(val surfaceHolder: SurfaceHolder) : Thread() {
     }
 
     fun stopThread() {
-        isRunning = false
-        join()
+        if (isRunning) {
+            isRunning = false
+            join()
+        }
     }
 
     override fun run() {
@@ -54,7 +51,7 @@ class GameThread(val surfaceHolder: SurfaceHolder) : Thread() {
                 ++updateCount
                 currentTime = System.currentTimeMillis()
                 elapsedTime = currentTime - startMeasure
-                sleepTime = (updateCount * targetMillisPerUpdate - elapsedTime).toLong()
+                sleepTime = updateCount * targetMillisPerUpdate - elapsedTime
                 // No render until the target UPS is met
             } while (sleepTime < 0)
 
@@ -68,7 +65,7 @@ class GameThread(val surfaceHolder: SurfaceHolder) : Thread() {
             // Sleep if too fast
             currentTime = System.currentTimeMillis()
             elapsedTime = currentTime - startMeasure
-            sleepTime = (updateCount * targetMillisPerUpdate - elapsedTime).toLong()
+            sleepTime = updateCount * targetMillisPerUpdate - elapsedTime
             // If we are ahead we sleep to keep UPS constant
             if (sleepTime > 0)
                 sleep(sleepTime)
