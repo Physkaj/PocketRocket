@@ -18,6 +18,7 @@
 
         <TextView
             android:id="@+id/game_title_text"
+            style="@style/title_style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pocket_rocket"
@@ -25,39 +26,39 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            style="@style/title_style" />
+            app:layout_constraintVertical_bias="0.25" />
 
         <LinearLayout
             android:id="@+id/button_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.75"
-            app:layout_constraintWidth_percent="0.5">
+            app:layout_constraintWidth_percent="0.9">
 
             <Button
                 android:id="@+id/play_button"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/play_button"
-
                 style="@style/button_style" />
 
             <Button
                 android:id="@+id/options_button"
                 style="@style/button_style"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/options_button" />
 
             <Button
                 android:id="@+id/exit_button"
                 style="@style/button_style"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/exit_button" />
         </LinearLayout>
