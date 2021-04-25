@@ -3,6 +3,8 @@ package com.example.pocketrocket.model
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.view.SurfaceHolder
+import com.example.pocketrocket.control.GameMaster
 import com.example.pocketrocket.utils.*
 import kotlin.random.Random
 
@@ -41,7 +43,7 @@ class BackgroundStar(
     }
 }
 
-class StarField(w: Int, h: Int, t: Int) : GameWorld(w, h, t) {
+class StarField(w: Int, h: Int, t: Long) : GameWorld(w, h, t) {
     private val starsList: MutableList<BackgroundStar> = mutableListOf()
     private var nextSpawnTick: Int = 0
     private var maxRadius2 = width * width + height * height
@@ -78,7 +80,7 @@ class StarField(w: Int, h: Int, t: Int) : GameWorld(w, h, t) {
                 vel = RadVec2D(0.1f * tickMillis, 0.001f * tickMillis)
             )
             starsList.add(star)
-            nextSpawnTick = Random.nextInt(100 / tickMillis, 1000 / tickMillis)
+            nextSpawnTick = Random.nextInt(100 / tickMillis.toInt(), 1000 / tickMillis.toInt())
         }
     }
 }

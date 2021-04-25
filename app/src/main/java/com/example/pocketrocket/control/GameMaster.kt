@@ -3,23 +3,25 @@ package com.example.pocketrocket.control
 import android.view.SurfaceHolder
 import com.example.pocketrocket.model.GameWorld
 
-open class GameMaster(holder: SurfaceHolder, var world: GameWorld) {
+open class GameMaster(holder: SurfaceHolder) {
     private val gameThread = GameThread(holder)
+    private var world: GameWorld? = null
 
-    init {
+    fun setupWorld(w: GameWorld) {
+        world = w
         gameThread.targetFPS = 60
-        gameThread.targetUPS = 10
-        gameThread.onDraw = { world.draw(it) }
-        gameThread.onUpdate = { world.update() }
+        gameThread.targetUPS = 1000L / world!!.tickMillis
+        gameThread.onDraw = { world!!.draw(it) }
+        gameThread.onUpdate = { world!!.update() }
     }
 
     fun startWorld() {
-        if (!gameThread.isRunning)
+        if (world != null && !gameThread.isRunning)
             gameThread.startThread()
     }
 
     fun reconfigureWorld(width: Int, height: Int) {
-        world.reconfigure(width, height)
+        world?.reconfigure(width, height)
     }
 
     fun stopWorld() {

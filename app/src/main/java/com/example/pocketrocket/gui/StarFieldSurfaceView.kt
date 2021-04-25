@@ -8,7 +8,8 @@ import com.example.pocketrocket.model.StarField
 
 class StarFieldSurfaceView(c: Context, attr: AttributeSet) : GameSurfaceView(c, attr) {
     init {
-        gameMaster = GameMaster(holder, StarField(width, height, 50))
+        gameMaster = GameMaster(holder)
+        gameMaster!!.setupWorld(StarField(width, height, 50))
         Log.d("SFSV", "$width $height")
     }
 }
