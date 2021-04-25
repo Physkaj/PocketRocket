@@ -27,6 +27,9 @@ class BackgroundStar(
             relPos = (value - origin).getRadVec2D()
         }
 
+    var starState = 0
+    var stateDuration: Long = 0L
+    var blinkPeriod: Long = 500L
     var starPaint: Paint = Paint()
 
     init {
@@ -34,7 +37,28 @@ class BackgroundStar(
     }
 
     override fun draw(c: Canvas) {
-        c.drawCircle(origin.x + relPos.x, origin.y + relPos.y, starRadius, starPaint)
+        when (starState) {
+            0 -> c.drawCircle(
+                origin.x + relPos.x,
+                origin.y + relPos.y,
+                starRadius * 1.1f,
+                starPaint
+            )
+            1 -> c.drawCircle(
+                origin.x + relPos.x,
+                origin.y + relPos.y,
+                starRadius * 0.9f,
+                starPaint
+            )
+            else -> throw IllegalArgumentException("Illegal star state: $starState")
+        }
+
+        stateDuration += GameMaster.tickMillis
+        if (stateDuration >= blinkPeriod) {
+            starState = 1 - starState
+            stateDuration %= blinkPeriod
+        }
+
     }
 
     override fun update() {
@@ -77,7 +101,7 @@ class StarField(w: Int, h: Int, t: Long) : GameWorld(w, h, t) {
             val star = BackgroundStar(
                 ori = LinVec2D(0.5f * width, 0.5f * height) + RadVec2D().randVec(10f),
                 pos = RadVec2D(0.0f, 0.0f) + RadVec2D().randVec(10f),
-                vel = RadVec2D(0.1f * tickMillis, 0.001f * tickMillis)
+                vel = RadVec2D(0.05f * tickMillis, 0.0005f * tickMillis)
             )
             starsList.add(star)
             nextSpawnTick = Random.nextInt(100 / tickMillis.toInt(), 1000 / tickMillis.toInt())

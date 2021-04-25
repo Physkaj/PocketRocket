@@ -7,12 +7,29 @@ open class GameMaster(holder: SurfaceHolder) {
     private val gameThread = GameThread(holder)
     private var world: GameWorld? = null
 
+    companion object {
+        private var instance: GameMaster? = null
+        val tickMillis: Long
+            get() = instance?.world?.tickMillis ?: 0L
+    }
+
+    init {
+        if (instance != null)
+            throw InstantiationException("GameMaster is a singleton")
+        instance = this
+    }
+
     fun setupWorld(w: GameWorld) {
         world = w
         gameThread.targetFPS = 60
-        gameThread.targetUPS = 1000L / world!!.tickMillis
+        gameThread.targetMillisPerUpdate = world!!.tickMillis
         gameThread.onDraw = { world!!.draw(it) }
         gameThread.onUpdate = { world!!.update() }
+    }
+
+    fun destroyWorld() {
+        stopWorld()
+        world = null
     }
 
     fun startWorld() {
