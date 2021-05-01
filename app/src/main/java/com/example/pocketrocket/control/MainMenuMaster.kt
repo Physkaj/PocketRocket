@@ -10,7 +10,7 @@ import com.example.pocketrocket.model.StarField
 
 class MainMenuMaster(h: SurfaceHolder, c: Context) : GameMaster(h, c) {
     companion object {
-        val tickMillis: Long = 50L
+        val tickMillis: Long = 30L
     }
 
     private lateinit var starField: StarField
