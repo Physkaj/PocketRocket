@@ -4,6 +4,8 @@ import android.graphics.Canvas
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.systems.GameSystem
+import com.example.pocketrocket.utils.MutableScreenProperties
+import com.example.pocketrocket.utils.ScreenProperties
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -14,12 +16,21 @@ interface ECSCallback {
     fun hasComponent(eid: EidType, cid: CidType): Boolean
     fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T
+    fun getScreenProperties(): ScreenProperties
 }
 
-abstract class ECSManager : ECSCallback {
+abstract class ECSManager(protected val callbackGameManager: GameManagerCallback) : ECSCallback {
     companion object {
         var currentManager: ECSManager? = null
             private set
+    }
+
+    override fun getScreenProperties() = callbackGameManager.getScreenProperties()
+
+    fun resize(width: Int, height: Int) {
+        val screenProperties = getScreenProperties()
+        if (width == screenProperties.width && height == screenProperties.height) return
+        // Do stuff with stuff that cares about the screen dimensions...
     }
 
     private val entityManager = EntityManager()
@@ -74,4 +85,3 @@ abstract class ECSManager : ECSCallback {
     abstract fun update(t: Float, dt: Float)
     abstract fun draw(canvas: Canvas)
 }
-

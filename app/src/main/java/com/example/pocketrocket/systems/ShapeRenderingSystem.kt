@@ -25,36 +25,24 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
             // Setup paint
             paint.color = color.color
 
+            val screen = callback.getScreenProperties()
             // Transform into screen coordinates
-            val (x, y) = position.screenCoordinates(canvas)
+            val (x, y) = screen.screenCoordinates(position.x, position.y)
             // Draw shape
             when (shape.shapeType) {
                 ShapeComponent.ShapeType.CIRCLE -> {
-                    val r = shape.screenRadius(canvas)
+                    val r = screen.screenRadius(shape.r)
                     canvas.drawCircle(x, y, r, paint)
                 }
                 ShapeComponent.ShapeType.LINE -> {
-                    val (x1, y1) = shape.screenCoordinates(canvas)
+                    val (x1, y1) = screen.screenCoordinates(shape.x, shape.y)
                     canvas.drawLine(x, y, x1, y1, paint)
                 }
                 ShapeComponent.ShapeType.RECTANGLE -> {
-                    val (x1, y1) = shape.screenCoordinates(canvas)
+                    val (x1, y1) = screen.screenCoordinates(shape.x, shape.y)
                     canvas.drawRect(x, y, x1, y1, paint)
                 }
             }
         }
     }
 }
-
-fun screenCoordinates(x: Float, y: Float, canvas: Canvas) =
-    Pair<Float, Float>(canvas.width * 0.5f + canvas.height * 0.5f * x, canvas.height * 0.5f * (1f - y))
-
-fun screenRadius(r: Float, canvas: Canvas) = canvas.height * 0.5f * r
-fun ShapeComponent.screenCoordinates(canvas: Canvas) =
-    com.example.pocketrocket.systems.screenCoordinates(this.x, this.y, canvas)
-
-fun ShapeComponent.screenRadius(canvas: Canvas) =
-    com.example.pocketrocket.systems.screenRadius(this.r, canvas)
-
-fun PositionComponent.screenCoordinates(canvas: Canvas) =
-    com.example.pocketrocket.systems.screenCoordinates(this.x, this.y, canvas)

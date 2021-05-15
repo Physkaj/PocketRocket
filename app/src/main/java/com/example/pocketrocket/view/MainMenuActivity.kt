@@ -1,6 +1,7 @@
 package com.example.pocketrocket.view
 
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pocketrocket.databinding.ActivityMainMenuBinding
@@ -17,7 +18,10 @@ class MainMenuActivity : AppCompatActivity() {
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        GameManager(applicationContext, binding.mainMenuSurfaceView.holder, MainMenuECS())
+        val height = Resources.getSystem().displayMetrics.heightPixels
+        val width = Resources.getSystem().displayMetrics.widthPixels
+        val gameManager = GameManager(applicationContext, binding.mainMenuSurfaceView.holder, width, height)
+        gameManager.addECS(MainMenuECS(gameManager))
 
         binding.exitButton.setOnClickListener {
             val homeIntent = Intent(Intent.ACTION_MAIN)

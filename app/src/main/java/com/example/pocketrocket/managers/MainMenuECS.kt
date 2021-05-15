@@ -8,7 +8,7 @@ import com.example.pocketrocket.systems.OrbitalSystem
 import com.example.pocketrocket.systems.ShapeRenderingSystem
 import com.example.pocketrocket.systems.StarSpawningSystem
 
-class MainMenuECS : ECSManager() {
+class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameManger) {
     private var backgroundRenderingSystem: BackgroundRenderingSystem
     private var starSpawningSystem: StarSpawningSystem
     private var orbitalSystem: OrbitalSystem
