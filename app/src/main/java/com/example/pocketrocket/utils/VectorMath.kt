@@ -7,7 +7,7 @@ import kotlin.random.Random
 const val onePI = PI.toFloat()
 const val twoPI = 2 * PI.toFloat()
 
-class Vec2D(var x: Float = 0f, var y: Float = 0f) {
+data class Vec2D(var x: Float = 0f, var y: Float = 0f) {
     val r: Float
         get() = sqrt(r2)
     val r2: Float
@@ -22,9 +22,25 @@ class Vec2D(var x: Float = 0f, var y: Float = 0f) {
     operator fun times(vec: Vec2D): Float = dot(vec)
     fun dot(vec: Vec2D): Float = this.x * vec.x + this.y * vec.y
     operator fun times(factor: Float): Vec2D = Vec2D(x * factor, y * factor)
+    operator fun div(factor: Float): Vec2D = Vec2D(x / factor, y / factor)
+    operator fun get(i: Int): Float {
+        return when (i) {
+            0 -> x
+            1 -> y
+            else -> throw IndexOutOfBoundsException("Invalid index: $i for a 2D vector.")
+        }
+    }
+
+    operator fun set(i: Int, value: Float) {
+        when (i) {
+            0 -> x = value
+            1 -> y = value
+            else -> throw IndexOutOfBoundsException("Invalid index: $i for a 2D vector.")
+        }
+    }
 }
 
-class Vec3D(var x: Float, var y: Float, var z: Float) {
+data class Vec3D(var x: Float, var y: Float, var z: Float) {
     val r: Float
         get() = sqrt(r2)
     val r2: Float
@@ -36,18 +52,37 @@ class Vec3D(var x: Float, var y: Float, var z: Float) {
     val azimuth: Float
         get() = atan2(y, x)
     val inclination: Float
-        get() = acos(z / r)
+        get() = if (r == 0f) 0f else acos(z / r)
+
+    operator fun get(i: Int): Float {
+        return when (i) {
+            0 -> x
+            1 -> y
+            2 -> z
+            else -> throw IndexOutOfBoundsException("Invalid index: $i for a 3D vector.")
+        }
+    }
+
+    operator fun set(i: Int, value: Float) {
+        when (i) {
+            0 -> x = value
+            1 -> y = value
+            2 -> z = value
+            else -> throw IndexOutOfBoundsException("Invalid index: $i for a 3D vector.")
+        }
+    }
 
     operator fun unaryPlus() = Vec3D(x, y, z)
     operator fun unaryMinus() = Vec3D(-x, -y, -z)
-    operator fun plus(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + z)
-    operator fun minus(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - z)
+    operator fun plus(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + vec.z)
+    operator fun minus(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - vec.z)
     operator fun times(vec: Vec3D): Float = dot(vec)
     fun dot(vec: Vec3D): Float = this.x * vec.x + this.y * vec.y + this.z * vec.z
-    fun cross(v1: Vec3D, v2: Vec3D): Vec3D =
-        Vec3D(v1.y * v2.z - v2.y * v1.z, v1.z * v2.x - v2.z * v1.x, v1.x * v2.y - v2.x * v1.y)
+    fun cross(v2: Vec3D): Vec3D =
+        Vec3D(this.y * v2.z - v2.y * this.z, this.z * v2.x - v2.z * this.x, this.x * v2.y - v2.x * this.y)
 
     operator fun times(factor: Float): Vec3D = Vec3D(x * factor, y * factor, z * factor)
+    operator fun div(factor: Float): Vec3D = Vec3D(x / factor, y / factor, z / factor)
 }
 
 fun Vec2D.createRandomVecLin(x1: Float, y1: Float, x2: Float, y2: Float): Vec2D =
