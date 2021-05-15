@@ -14,14 +14,11 @@ interface ECSCallback {
     fun hasComponent(eid: EidType, cid: CidType): Boolean
     fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T
+    fun getComponentPoolSize(cid: CidType): Int
+    fun growComponentPoolSize(cid: CidType, size: Int)
 }
 
 abstract class ECSManager : ECSCallback {
-    companion object {
-        var currentManager: ECSManager? = null
-            private set
-    }
-
     private val entityManager = EntityManager()
     private val componentManager = ComponentManager()
     private val systemManager = SystemManager()
@@ -58,6 +55,14 @@ abstract class ECSManager : ECSCallback {
         val signature = entityManager.setSignature(eid, cid, true)
         systemManager.componentAdded(eid, signature)
         return component
+    }
+
+    override fun getComponentPoolSize(cid: CidType): Int {
+        return componentManager.getComponentPoolSize(cid)
+    }
+
+    override fun growComponentPoolSize(cid: CidType, size: Int) {
+        componentManager.growComponentPool(cid, size)
     }
 
     protected fun removeComponent(eid: EidType, cid: CidType) {

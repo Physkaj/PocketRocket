@@ -22,6 +22,11 @@ class MainMenuECS : ECSManager() {
         registerComponent(ParentComponent::class)
         registerComponent(TextComponent::class)
 
+        growComponentPoolSize(PositionComponent.componentID, 500)
+        growComponentPoolSize(OrbitComponent.componentID, 500)
+        growComponentPoolSize(ShapeComponent.componentID, 500)
+        growComponentPoolSize(ParentComponent.componentID, 500)
+
         // Background
         createEntity().apply {
             addComponent<PositionComponent>(this, PositionComponent.componentID).let {
