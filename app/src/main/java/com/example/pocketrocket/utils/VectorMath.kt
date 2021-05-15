@@ -44,6 +44,9 @@ class Vec3D(var x: Float, var y: Float, var z: Float) {
     operator fun minus(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - z)
     operator fun times(vec: Vec3D): Float = dot(vec)
     fun dot(vec: Vec3D): Float = this.x * vec.x + this.y * vec.y + this.z * vec.z
+    fun cross(v1: Vec3D, v2: Vec3D): Vec3D =
+        Vec3D(v1.y * v2.z - v2.y * v1.z, v1.z * v2.x - v2.z * v1.x, v1.x * v2.y - v2.x * v1.y)
+
     operator fun times(factor: Float): Vec3D = Vec3D(x * factor, y * factor, z * factor)
 }
 
