@@ -16,12 +16,9 @@ class EulerMotionSystem(callback: ECSCallback) : GameSystem(callback) {
             val position = callback.getComponent<PositionComponent>(eid, PositionComponent.componentID)
             val physical = callback.getComponent<PhysicalBodyComponent>(eid, PhysicalBodyComponent.componentID)
 
-            // TODO: 2021-05-15 Replace use of PositionComponent
-            position.x += physical.vel.x * dt
-            position.y += physical.vel.y * dt
+            position.pos += physical.vel * dt
             physical.vel += physical.acc * dt
-            position.x += physical.acc.x * physical.acc.x * dt * 0.5f
-            position.y += physical.acc.y * physical.acc.y * dt * 0.5f
+            position.pos += physical.acc.timesComponentwise(physical.acc) * dt * 0.5f
         }
     }
 }

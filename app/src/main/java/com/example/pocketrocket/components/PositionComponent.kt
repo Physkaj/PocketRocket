@@ -1,10 +1,9 @@
 package com.example.pocketrocket.components
 
-import android.graphics.Canvas
+import com.example.pocketrocket.utils.Vec2D
 
 data class PositionComponent(
-    var x: Float = 0f,
-    var y: Float = 0f
+    var pos: Vec2D = Vec2D(0f, 0f)
 ) : IGameComponent by Companion {
     companion object : GameComponentCompanion()
 }

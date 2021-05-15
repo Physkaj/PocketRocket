@@ -5,6 +5,7 @@ import com.example.pocketrocket.components.ParentComponent
 import com.example.pocketrocket.components.PositionComponent
 import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.managers.ECSCallback
+import com.example.pocketrocket.utils.Vec2D
 import java.util.*
 import kotlin.math.cos
 import kotlin.math.sin
@@ -17,14 +18,12 @@ class OrbitalSystem(callback: ECSCallback) : GameSystem(callback) {
             val orbit = callback.getComponent<OrbitComponent>(eid, OrbitComponent.componentID)
 
             val dt = t - orbit.t0
-            position.x = (orbit.r0 + orbit.vr * dt) * cos(orbit.va * dt)
-            position.y = (orbit.r0 + orbit.vr * dt) * sin(orbit.va * dt)
+            position.pos = Vec2D.createVecPolar(orbit.r0 + orbit.vr * dt, orbit.va * dt)
 
             if (callback.hasComponent(eid, ParentComponent.componentID)) {
                 val parent = callback.getComponent<ParentComponent>(eid, ParentComponent.componentID)
                 val parentPosition = callback.getComponent<PositionComponent>(parent.parentEid, PositionComponent.componentID)
-                position.x += parentPosition.x
-                position.y += parentPosition.y
+                position.pos += parentPosition.pos
             }
         }
     }
@@ -33,7 +32,7 @@ class OrbitalSystem(callback: ECSCallback) : GameSystem(callback) {
         val toBeDestroyed = mutableListOf<EidType>()
         for (eid in entityList.toList()) {
             val position = callback.getComponent<PositionComponent>(eid, PositionComponent.componentID)
-            if (position.x * position.x + position.y * position.y > rLimit2)
+            if (position.pos.r2 > rLimit2)
             // Cannot call destroyEntity here since it would modify the list we are iterating over
                 toBeDestroyed.add(eid)
         }

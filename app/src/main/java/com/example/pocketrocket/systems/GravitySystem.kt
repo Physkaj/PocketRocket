@@ -17,7 +17,7 @@ class GravitySystem(callback: ECSCallback) : GameSystem(callback) {
                 signature.get(PhysicalBodyComponent.componentID)
     }
 
-    fun gravitate(dt: Float) {
+    fun gravitate() {
         for (i in 0 until entityList.size) {
             val eid1 = entityList.elementAt(i)
             val position1 = callback.getComponent<PositionComponent>(eid1, PositionComponent.componentID)
@@ -29,7 +29,7 @@ class GravitySystem(callback: ECSCallback) : GameSystem(callback) {
                 val gravity2 = callback.getComponent<GravityComponent>(eid2, GravityComponent.componentID)
                 val physical2 = callback.getComponent<PhysicalBodyComponent>(eid2, PhysicalBodyComponent.componentID)
 
-                val dp = Vec2D(position1.x - position2.x, position1.y - position2.y)
+                val dp = position1.pos - position2.pos
                 val r = dp.r
                 val r3 = r * r * r
 

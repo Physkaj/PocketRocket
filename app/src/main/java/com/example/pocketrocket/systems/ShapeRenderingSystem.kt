@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.Shader
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.managers.ECSCallback
+import com.example.pocketrocket.utils.Vec2D
 import java.util.*
 
 class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
@@ -27,20 +28,20 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
 
             val screen = callback.getScreenProperties()
             // Transform into screen coordinates
-            val (x, y) = screen.screenCoordinates(position.x, position.y)
+            val screenPos = screen.screenCoordinates(position.pos)
             // Draw shape
             when (shape.shapeType) {
                 ShapeComponent.ShapeType.CIRCLE -> {
                     val r = screen.screenRadius(shape.r)
-                    canvas.drawCircle(x, y, r, paint)
+                    canvas.drawCircle(screenPos.x, screenPos.y, r, paint)
                 }
                 ShapeComponent.ShapeType.LINE -> {
                     val (x1, y1) = screen.screenCoordinates(shape.x, shape.y)
-                    canvas.drawLine(x, y, x1, y1, paint)
+                    canvas.drawLine(screenPos.x, screenPos.y, x1, y1, paint)
                 }
                 ShapeComponent.ShapeType.RECTANGLE -> {
-                    val (x1, y1) = screen.screenCoordinates(shape.x, shape.y)
-                    canvas.drawRect(x, y, x1, y1, paint)
+                    val screenPos2 = screen.screenCoordinates(shape.x, shape.y)
+                    canvas.drawRect(screenPos.x, screenPos.y, screenPos2.x, screenPos2.y, paint)
                 }
             }
         }

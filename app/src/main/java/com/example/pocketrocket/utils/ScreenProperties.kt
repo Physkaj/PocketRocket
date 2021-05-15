@@ -4,7 +4,9 @@ abstract class ScreenProperties {
     abstract val width: Int
     abstract val height: Int
     fun screenCoordinates(x: Float, y: Float) =
-        Pair<Float, Float>(width * 0.5f + height * 0.5f * x, height * 0.5f * (1f - y))
+        Vec2D(width * 0.5f + height * 0.5f * x, height * 0.5f * (1f - y))
+
+    fun screenCoordinates(vec: Vec2D) = screenCoordinates(vec.x, vec.y)
 
     fun screenRadius(r: Float) = height * 0.5f * r
 }
