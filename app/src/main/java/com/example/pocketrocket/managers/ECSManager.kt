@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.systems.GameSystem
-import com.example.pocketrocket.utils.MutableScreenProperties
 import com.example.pocketrocket.utils.ScreenProperties
 import java.util.*
 import kotlin.reflect.KClass
@@ -17,13 +16,11 @@ interface ECSCallback {
     fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T
     fun getScreenProperties(): ScreenProperties
+    fun getComponentPoolSize(cid: CidType): Int
+    fun growComponentPoolSize(cid: CidType, size: Int)
 }
 
 abstract class ECSManager(protected val callbackGameManager: GameManagerCallback) : ECSCallback {
-    companion object {
-        var currentManager: ECSManager? = null
-            private set
-    }
 
     override fun getScreenProperties() = callbackGameManager.getScreenProperties()
 
@@ -69,6 +66,14 @@ abstract class ECSManager(protected val callbackGameManager: GameManagerCallback
         val signature = entityManager.setSignature(eid, cid, true)
         systemManager.componentAdded(eid, signature)
         return component
+    }
+
+    override fun getComponentPoolSize(cid: CidType): Int {
+        return componentManager.getComponentPoolSize(cid)
+    }
+
+    override fun growComponentPoolSize(cid: CidType, size: Int) {
+        componentManager.growComponentPool(cid, size)
     }
 
     protected fun removeComponent(eid: EidType, cid: CidType) {

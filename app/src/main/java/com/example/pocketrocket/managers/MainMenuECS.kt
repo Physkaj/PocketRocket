@@ -25,6 +25,11 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(TextComponent::class)
         registerComponent(VelocityComponent::class)
 
+        growComponentPoolSize(PositionComponent.componentID, 500)
+        growComponentPoolSize(OrbitComponent.componentID, 500)
+        growComponentPoolSize(ShapeComponent.componentID, 500)
+        growComponentPoolSize(ParentComponent.componentID, 500)
+
         // Background
         createEntity().apply {
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
