@@ -6,6 +6,8 @@ import java.util.*
 class GameComponentPool<T : IGameComponent>(preFill: Int = 0, private val recipe: () -> T) {
     private val everyComponent: MutableList<T> = mutableListOf<T>()
     private val availableComponents: Queue<T> = LinkedList<T>()
+    val size: Int
+        get() = everyComponent.size
 
     init {
         this.growPool(preFill)

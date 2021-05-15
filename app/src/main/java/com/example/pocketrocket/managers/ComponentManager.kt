@@ -7,6 +7,7 @@ import com.example.pocketrocket.components.IGameComponent
 import com.example.pocketrocket.entity.EidType
 import java.util.*
 import kotlin.NoSuchElementException
+import kotlin.math.max
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.createInstance
@@ -47,6 +48,16 @@ class ComponentManager {
                 ?: throw ClassCastException("Could not cast into Map<TypeEID,T($cid)>")
         return map[eid]
             ?: throw (NoSuchElementException("Entity: $eid does not have a component $cid"))
+    }
+
+    fun getComponentPoolSize(cid: CidType): Int {
+        return componentPools[cid].size
+    }
+
+    fun growComponentPool(cid: CidType, size: Int) {
+        val pool = componentPools[cid]
+        val increase = max(0, size - pool.size)
+        componentPools[cid].growPool(increase)
     }
 
 }
