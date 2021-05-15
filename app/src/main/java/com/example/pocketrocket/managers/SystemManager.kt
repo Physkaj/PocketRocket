@@ -30,7 +30,9 @@ class SystemManager() {
         }
     }
 
-    fun entityDestroyed(id: EidType) {
-
+    fun entityDestroyed(eid: EidType) {
+        for (system in systems)
+            if (system.hasEntity(eid))
+                system.removeEntity(eid)
     }
 }

@@ -2,7 +2,7 @@ package com.example.pocketrocket.components
 
 import com.example.pocketrocket.entity.EidType
 
-class ParentComponent(
+data class ParentComponent(
     var parentEid: EidType = -1,
     var relativePosition: ChildPositionType = ChildPositionType.NONE
 ) : IGameComponent by Companion {

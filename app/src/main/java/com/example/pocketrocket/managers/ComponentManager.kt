@@ -24,9 +24,9 @@ class ComponentManager {
     }
 
     fun entityDestroyed(eid: EidType, signature: BitSet) {
-        for (i in 0 until componentArrays.size)
-            if (signature[i])
-                componentArrays[i].remove(eid)
+        for (cid in 0 until componentArrays.size)
+            if (signature[cid])
+                removeComponent(eid, cid)
     }
 
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T {

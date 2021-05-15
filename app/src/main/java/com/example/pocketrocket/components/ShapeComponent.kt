@@ -1,7 +1,7 @@
 package com.example.pocketrocket.components
 
 data class ShapeComponent(
-    var shapeType: ShapeType,
+    var shapeType: ShapeType = ShapeType.CIRCLE,
     var parameter1: Float = 0f,
     var parameter2: Float = 0f
 ) : IGameComponent by Companion {

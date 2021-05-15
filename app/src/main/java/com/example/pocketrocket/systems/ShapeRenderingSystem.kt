@@ -30,16 +30,19 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
             paint.color = color.color
 
             // Transform into screen coordinates
-            val (x, y) = toScreenCoordinates(position.x, position.y, canvas)
+            val (x, y) = position.screenCoordinates(canvas)
             // Draw shape
             when (shape.shapeType) {
-                ShapeComponent.ShapeType.CIRCLE -> canvas.drawCircle(x, y, shape.r, paint)
+                ShapeComponent.ShapeType.CIRCLE -> {
+                    val r = shape.screenRadius(canvas)
+                    canvas.drawCircle(x, y, r, paint)
+                }
                 ShapeComponent.ShapeType.LINE -> {
-                    val (x1, y1) = toScreenCoordinates(shape.x, shape.y, canvas)
+                    val (x1, y1) = shape.screenCoordinates(canvas)
                     canvas.drawLine(x, y, x1, y1, paint)
                 }
                 ShapeComponent.ShapeType.RECTANGLE -> {
-                    val (x1, y1) = toScreenCoordinates(shape.x, shape.y, canvas)
+                    val (x1, y1) = shape.screenCoordinates(canvas)
                     canvas.drawRect(x, y, x1, y1, paint)
                 }
             }
@@ -47,6 +50,14 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
     }
 }
 
-fun ShapeRenderingSystem.toScreenCoordinates(x: Float, y: Float, canvas: Canvas): Pair<Float, Float> {
-    return Pair<Float, Float>(canvas.width * 0.5f * (1f + x), canvas.height * 0.5f * (1f - y))
-}
+fun screenCoordinates(x: Float, y: Float, canvas: Canvas) =
+    Pair<Float, Float>(canvas.width * 0.5f * (1f + x), canvas.height * 0.5f * (1f - y))
+
+fun PositionComponent.screenCoordinates(canvas: Canvas) =
+    Pair<Float, Float>(canvas.width * 0.5f * (1f + this.x), canvas.height * 0.5f * (1f - this.y))
+
+fun ShapeComponent.screenCoordinates(canvas: Canvas) =
+    Pair<Float, Float>(canvas.width * 0.5f * (1f + this.x), canvas.height * 0.5f * (1f - this.y))
+
+fun screenRadius(r: Float, canvas: Canvas) = canvas.height * 0.5f * r
+fun ShapeComponent.screenRadius(canvas: Canvas) = canvas.height * 0.5f * this.r

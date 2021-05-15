@@ -2,17 +2,20 @@ package com.example.pocketrocket.managers
 
 import android.os.SystemClock.sleep
 import android.util.Log
+import android.widget.Chronometer
+import java.time.chrono.ChronoPeriod
 
 const val nano: Float = 1e-9f
 const val nanoInv: Long = 1000000000
 
-class TimeManager(tickSec: Int = 30) : Runnable {
+class TimeManager(targetUPS: Float) : Runnable {
+    private val targetNanoSecPerUpdate: Long = (1e9 / targetUPS).toLong()
+
     @Volatile
     var isRunning: Boolean = false
         private set
     var averageFPS: Float = 0f
         private set
-    val targetNanoSecPerUpdate: Long = tickSec * nanoInv
     var averageUPS: Float = 0f
         private set
     var onUpdate: ((Float, Float) -> Unit)? = null
@@ -30,11 +33,11 @@ class TimeManager(tickSec: Int = 30) : Runnable {
         var updateCount = 0
         while (isRunning) {
             do {
-                onUpdate?.invoke((updateCount * targetNanoSecPerUpdate).toFloat(), nano * targetNanoSecPerUpdate)
+                onUpdate?.invoke(nano * (timeStart + updateCount * targetNanoSecPerUpdate), nano * targetNanoSecPerUpdate)
                 ++updateCount
                 timeLeft = updateCount * targetNanoSecPerUpdate - (System.nanoTime() - timeStart)
                 // No render until the target UPS is met
-            } while (timeLeft < 0)
+            } while (false) // timeLeft < 0) This messes up debugging, set a debug flag?
             // Draw everything
             onDraw?.invoke()
             ++frameCount
@@ -42,13 +45,12 @@ class TimeManager(tickSec: Int = 30) : Runnable {
             timeLeft = updateCount * targetNanoSecPerUpdate - (System.nanoTime() - timeStart)
             // If we are ahead we sleep to keep UPS constant
             if (timeLeft > 0)
-                sleep(timeLeft)
+                sleep(timeLeft / 1000000) // Convert to ms
 
-            val updatesPerInterval = 2 / (nano * targetNanoSecPerUpdate)
-            if (updateCount >= updatesPerInterval) {
-                val secondsElapsed = nano * (System.nanoTime() - timeStart)
-                averageUPS = updateCount / (nano * secondsElapsed)
-                averageFPS = frameCount / (nano * secondsElapsed)
+            val secondsElapsed = nano * (System.nanoTime() - timeStart)
+            if (secondsElapsed > 2) {
+                averageUPS = updateCount / secondsElapsed
+                averageFPS = frameCount / secondsElapsed
                 Log.d("GameClock", "UPS: $averageUPS")
                 Log.d("GameClock", "FPS: $averageFPS")
                 updateCount = 0

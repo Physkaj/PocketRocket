@@ -6,7 +6,7 @@ import java.lang.Exception
 
 class GameManager(private val context: Context, private val surfaceHolder: SurfaceHolder, private val ecsManager: ECSManager) :
     SurfaceHolder.Callback {
-    private val timeManager = TimeManager(30)
+    private val timeManager = TimeManager(30f)
 
     init {
         timeManager.onUpdate = this::onUpdate

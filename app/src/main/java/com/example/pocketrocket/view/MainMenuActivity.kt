@@ -1,10 +1,12 @@
 package com.example.pocketrocket.view
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.example.pocketrocket.databinding.ActivityMainMenuBinding
 import com.example.pocketrocket.managers.GameManager
 import com.example.pocketrocket.managers.MainMenuECS
+
 
 class MainMenuActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainMenuBinding
@@ -17,6 +19,11 @@ class MainMenuActivity : AppCompatActivity() {
 
         GameManager(applicationContext, binding.mainMenuSurfaceView.holder, MainMenuECS())
 
-        binding.exitButton.setOnClickListener { finish() }
+        binding.exitButton.setOnClickListener {
+            val homeIntent = Intent(Intent.ACTION_MAIN)
+            homeIntent.addCategory(Intent.CATEGORY_HOME)
+            homeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(homeIntent)
+        }
     }
 }
