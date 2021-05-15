@@ -23,7 +23,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(ShapeComponent::class)
         registerComponent(StarSpawnComponent::class)
         registerComponent(TextComponent::class)
-        registerComponent(VelocityComponent::class)
+        registerComponent(PhysicalBodyComponent::class)
 
         growComponentPoolSize(PositionComponent.componentID, 500)
         growComponentPoolSize(OrbitComponent.componentID, 500)
