@@ -4,9 +4,7 @@ import android.graphics.Canvas
 import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Shader
-import com.example.pocketrocket.components.ColorComponent
-import com.example.pocketrocket.components.PositionComponent
-import com.example.pocketrocket.components.ShapeComponent
+import com.example.pocketrocket.components.*
 import com.example.pocketrocket.managers.ECSCallback
 import java.util.*
 
@@ -17,8 +15,6 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 signature.get(ShapeComponent.componentID) &&
                 signature.get(ColorComponent.componentID)
     }
-
-    val linearGradient = LinearGradient(0f, 0f, 1f, 1f, IntArray(2) { it }, null, Shader.TileMode.CLAMP)
 
     fun activate(canvas: Canvas) {
         for (eid in entityList) {
@@ -51,13 +47,14 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
 }
 
 fun screenCoordinates(x: Float, y: Float, canvas: Canvas) =
-    Pair<Float, Float>(canvas.width * 0.5f * (1f + x), canvas.height * 0.5f * (1f - y))
-
-fun PositionComponent.screenCoordinates(canvas: Canvas) =
-    Pair<Float, Float>(canvas.width * 0.5f * (1f + this.x), canvas.height * 0.5f * (1f - this.y))
-
-fun ShapeComponent.screenCoordinates(canvas: Canvas) =
-    Pair<Float, Float>(canvas.width * 0.5f * (1f + this.x), canvas.height * 0.5f * (1f - this.y))
+    Pair<Float, Float>(canvas.width * 0.5f + canvas.height * 0.5f * x, canvas.height * 0.5f * (1f - y))
 
 fun screenRadius(r: Float, canvas: Canvas) = canvas.height * 0.5f * r
-fun ShapeComponent.screenRadius(canvas: Canvas) = canvas.height * 0.5f * this.r
+fun ShapeComponent.screenCoordinates(canvas: Canvas) =
+    com.example.pocketrocket.systems.screenCoordinates(this.x, this.y, canvas)
+
+fun ShapeComponent.screenRadius(canvas: Canvas) =
+    com.example.pocketrocket.systems.screenRadius(this.r, canvas)
+
+fun PositionComponent.screenCoordinates(canvas: Canvas) =
+    com.example.pocketrocket.systems.screenCoordinates(this.x, this.y, canvas)

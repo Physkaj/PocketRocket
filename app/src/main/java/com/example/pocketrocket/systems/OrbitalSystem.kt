@@ -29,9 +29,7 @@ class OrbitalSystem(callback: ECSCallback) : GameSystem(callback) {
         }
     }
 
-    fun deOrbit(rLimit: Float = 2f) {
-        val rLimit2 = rLimit * rLimit
-
+    fun deOrbit(rLimit2: Float) {
         val toBeDestroyed = mutableListOf<EidType>()
         for (eid in entityList.toList()) {
             val position = callback.getComponent<PositionComponent>(eid, PositionComponent.componentID)

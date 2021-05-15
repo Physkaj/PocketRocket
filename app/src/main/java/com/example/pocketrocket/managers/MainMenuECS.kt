@@ -3,36 +3,31 @@ package com.example.pocketrocket.managers
 import android.graphics.Canvas
 import android.graphics.Color
 import com.example.pocketrocket.components.*
+import com.example.pocketrocket.systems.BackgroundRenderingSystem
 import com.example.pocketrocket.systems.OrbitalSystem
 import com.example.pocketrocket.systems.ShapeRenderingSystem
 import com.example.pocketrocket.systems.StarSpawningSystem
 
 class MainMenuECS : ECSManager() {
+    private var backgroundRenderingSystem: BackgroundRenderingSystem
     private var starSpawningSystem: StarSpawningSystem
     private var orbitalSystem: OrbitalSystem
     private var shapeRenderingSystem: ShapeRenderingSystem
 
     init {
-        registerComponent(PositionComponent::class)
-        registerComponent(VelocityComponent::class)
-        registerComponent(OrbitComponent::class)
+        registerComponent(BackgroundComponent::class)
         registerComponent(ColorComponent::class)
+        registerComponent(OrbitComponent::class)
+        registerComponent(ParentComponent::class)
+        registerComponent(PositionComponent::class)
         registerComponent(ShapeComponent::class)
         registerComponent(StarSpawnComponent::class)
-        registerComponent(ParentComponent::class)
         registerComponent(TextComponent::class)
+        registerComponent(VelocityComponent::class)
 
         // Background
         createEntity().apply {
-            addComponent<PositionComponent>(this, PositionComponent.componentID).let {
-                it.x = -1f
-                it.y = -1f
-            }
-            addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
-                it.shapeType = ShapeComponent.ShapeType.RECTANGLE
-                it.x = 1f
-                it.y = 1f
-            }
+            addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
             addComponent<ColorComponent>(this, ColorComponent.componentID).let {
                 it.color = Color.DKGRAY
             }
@@ -59,21 +54,29 @@ class MainMenuECS : ECSManager() {
             }
         }
 
-        orbitalSystem = OrbitalSystem(this).also { addSystem(it) }
+        backgroundRenderingSystem = BackgroundRenderingSystem(this).also {
+            addSystem(it)
+        }
+        orbitalSystem = OrbitalSystem(this).also {
+            addSystem(it)
+        }
         starSpawningSystem = StarSpawningSystem(this).also {
             addSystem(it)
             it.retroactiveStarCreation(2f / starSpawnerComponent.starRadialVelocity)
         }
-        shapeRenderingSystem = ShapeRenderingSystem(this).also { addSystem(it) }
+        shapeRenderingSystem = ShapeRenderingSystem(this).also {
+            addSystem(it)
+        }
     }
 
     override fun update(t: Float, dt: Float) {
         starSpawningSystem.spawn(t)
         orbitalSystem.updateOrbits(t)
-        orbitalSystem.deOrbit()
+        orbitalSystem.deOrbit(13f)
     }
 
     override fun draw(canvas: Canvas) {
+        backgroundRenderingSystem.drawBackground(canvas)
         shapeRenderingSystem.activate(canvas)
     }
 }

@@ -1,5 +1,9 @@
 package com.example.pocketrocket.components
 
-data class BackgroundComponent(val isBackground: Boolean = true) : IGameComponent by Companion {
+import android.graphics.PorterDuff
+
+data class BackgroundComponent(
+    val drawMode: PorterDuff.Mode = PorterDuff.Mode.SRC
+) : IGameComponent by Companion {
     companion object : GameComponentCompanion()
 }

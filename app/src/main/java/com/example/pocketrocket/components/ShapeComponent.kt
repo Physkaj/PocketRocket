@@ -1,5 +1,7 @@
 package com.example.pocketrocket.components
 
+import android.graphics.Canvas
+
 data class ShapeComponent(
     var shapeType: ShapeType = ShapeType.CIRCLE,
     var parameter1: Float = 0f,
