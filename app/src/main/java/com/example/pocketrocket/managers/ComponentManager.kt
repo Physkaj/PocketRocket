@@ -42,11 +42,15 @@ class ComponentManager {
         componentPools[cid].returnComponent(component)
     }
 
-    fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T {
+    fun <T : IGameComponent> getComponentOrNull(eid: EidType, cid: CidType): T? {
         val map =
             componentArrays.elementAtOrElse(cid) { throw NoSuchElementException("No registered component with CID: $cid") } as? Map<EidType, T>
                 ?: throw ClassCastException("Could not cast into Map<TypeEID,T($cid)>")
         return map[eid]
+    }
+
+    fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T {
+        return getComponentOrNull<T>(eid, cid)
             ?: throw (NoSuchElementException("Entity: $eid does not have a component $cid"))
     }
 

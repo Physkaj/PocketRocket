@@ -7,8 +7,6 @@ import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.managers.ECSCallback
 import com.example.pocketrocket.utils.Vec2D
 import java.util.*
-import kotlin.math.cos
-import kotlin.math.sin
 
 class OrbitalSystem(callback: ECSCallback) : GameSystem(callback) {
 

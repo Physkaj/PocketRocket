@@ -14,6 +14,7 @@ interface ECSCallback {
     fun getSignature(eid: EidType): BitSet
     fun hasComponent(eid: EidType, cid: CidType): Boolean
     fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T
+    fun <T : IGameComponent> getComponentOrNull(eid: EidType, cid: CidType): T?
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T
     fun getScreenProperties(): ScreenProperties
     fun getComponentPoolSize(cid: CidType): Int
@@ -34,9 +35,7 @@ abstract class ECSManager(protected val callbackGameManager: GameManagerCallback
     private val componentManager = ComponentManager()
     private val systemManager = SystemManager()
 
-    override fun createEntity(): EidType {
-        return entityManager.createEntity()
-    }
+    override fun createEntity(): EidType = entityManager.createEntity()
 
     override fun destroyEntity(eid: EidType) {
         val signature = entityManager.getSignature(eid)
@@ -45,21 +44,15 @@ abstract class ECSManager(protected val callbackGameManager: GameManagerCallback
         systemManager.entityDestroyed(eid)
     }
 
-    override fun getSignature(eid: EidType): BitSet {
-        return entityManager.getSignature(eid)
-    }
+    override fun getSignature(eid: EidType): BitSet = entityManager.getSignature(eid)
 
-    override fun hasComponent(eid: EidType, cid: CidType): Boolean {
-        return entityManager.getSignature(eid)[cid]
-    }
+    override fun hasComponent(eid: EidType, cid: CidType): Boolean = entityManager.getSignature(eid)[cid]
 
-    override fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T {
-        return componentManager.getComponent<T>(eid, cid)
-    }
+    override fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T = componentManager.getComponent<T>(eid, cid)
 
-    protected fun registerComponent(componentClass: KClass<out IGameComponent>) {
-        componentManager.registerComponent(componentClass)
-    }
+    override fun <T : IGameComponent> getComponentOrNull(eid: EidType, cid: CidType): T? = componentManager.getComponentOrNull<T>(eid, cid)
+
+    protected fun registerComponent(componentClass: KClass<out IGameComponent>) = componentManager.registerComponent(componentClass)
 
     override fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T {
         val component = componentManager.addComponent<T>(eid, cid)
@@ -68,13 +61,9 @@ abstract class ECSManager(protected val callbackGameManager: GameManagerCallback
         return component
     }
 
-    override fun getComponentPoolSize(cid: CidType): Int {
-        return componentManager.getComponentPoolSize(cid)
-    }
+    override fun getComponentPoolSize(cid: CidType): Int = componentManager.getComponentPoolSize(cid)
 
-    override fun growComponentPoolSize(cid: CidType, size: Int) {
-        componentManager.growComponentPool(cid, size)
-    }
+    override fun growComponentPoolSize(cid: CidType, size: Int) = componentManager.growComponentPool(cid, size)
 
     protected fun removeComponent(eid: EidType, cid: CidType) {
         componentManager.removeComponent(eid, cid)
