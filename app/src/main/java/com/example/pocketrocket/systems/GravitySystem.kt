@@ -10,14 +10,14 @@ import java.util.*
 /*
  * Gravity constant is set to 1, masses are given in arbitrary units
  */
-class GravitySystem(callback: ECSCallback, var scaleGravity: Float = 1f) : GameSystem(callback) {
+class GravitySystem(callback: ECSCallback, var scaleGravity: Float = 1f, var significantMassLimit: Float = 0f) : GameSystem(callback) {
     companion object {
         fun calculateForce(p1: Vec2D, m1: Float, p2: Vec2D, m2: Float): Vec2D {
-            val dp = p2 - p1
-            val r = dp.r
+            val dx = p2 - p1
+            val r = dx.r
             val r3 = r * r * r
 
-            return dp * m1 * m2 / r3
+            return dx * m1 * m2 / r3
         }
     }
 
@@ -29,8 +29,10 @@ class GravitySystem(callback: ECSCallback, var scaleGravity: Float = 1f) : GameS
     fun gravitate() {
         for (i in 0 until entityList.size) {
             val eid1 = entityList.elementAt(i)
-            val position1 = callback.getComponent<PositionComponent>(eid1, PositionComponent.componentID)
             val gravity1 = callback.getComponent<GravityComponent>(eid1, GravityComponent.componentID)
+            // Reduce the number of calculations by only ignoring interactions between small masses
+            if (gravity1.mass < significantMassLimit) continue
+            val position1 = callback.getComponent<PositionComponent>(eid1, PositionComponent.componentID)
             val physical1 = callback.getComponentOrNull<PhysicalBodyComponent>(eid1, PhysicalBodyComponent.componentID)
             for (j in i + 1 until entityList.size) {
                 val eid2 = entityList.elementAt(j)
