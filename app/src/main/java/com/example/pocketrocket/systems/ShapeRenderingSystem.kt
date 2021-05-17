@@ -28,7 +28,7 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
 
             val screen = callback.getScreenProperties()
             // Transform into screen coordinates
-            val screenPos = screen.screenCoordinates(position.pos)
+            val screenPos = screen.screenCoordinates(position.pos.to2D())
             // Draw shape
             when (shape.shapeType) {
                 ShapeComponent.ShapeType.CIRCLE -> {

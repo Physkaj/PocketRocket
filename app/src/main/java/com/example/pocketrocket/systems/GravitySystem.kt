@@ -4,15 +4,15 @@ import com.example.pocketrocket.components.GravityComponent
 import com.example.pocketrocket.components.PositionComponent
 import com.example.pocketrocket.components.PhysicalBodyComponent
 import com.example.pocketrocket.managers.ECSCallback
-import com.example.pocketrocket.utils.Vec2D
+import com.example.pocketrocket.utils.Vec3D
 import java.util.*
 
 /*
  * Gravity constant is set to 1, masses are given in arbitrary units
  */
-class GravitySystem(callback: ECSCallback, var scaleGravity: Float = 1f, var significantMassLimit: Float = 0f) : GameSystem(callback) {
+class GravitySystem(callback: ECSCallback, var significantMassLimit: Float = 0f) : GameSystem(callback) {
     companion object {
-        fun calculateForce(p1: Vec2D, m1: Float, p2: Vec2D, m2: Float): Vec2D {
+        fun calculateForce(p1: Vec3D, m1: Float, p2: Vec3D, m2: Float): Vec3D {
             val dx = p2 - p1
             val r = dx.r
             val r3 = r * r * r
@@ -44,10 +44,8 @@ class GravitySystem(callback: ECSCallback, var scaleGravity: Float = 1f, var sig
                 val force = calculateForce(position1.pos, gravity1.mass, position2.pos, gravity2.mass)
 
                 // Allow for immovable gravity objects
-                if (physical1 != null)
-                    physical1.acc += force / gravity1.mass
-                if (physical2 != null)
-                    physical2.acc -= force / gravity2.mass
+                physical1?.acc?.addTo(force / gravity1.mass)
+                physical2?.acc?.subFrom(force / gravity2.mass)
             }
         }
     }

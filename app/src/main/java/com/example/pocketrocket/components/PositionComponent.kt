@@ -1,9 +1,9 @@
 package com.example.pocketrocket.components
 
-import com.example.pocketrocket.utils.Vec2D
+import com.example.pocketrocket.utils.Vec3D
 
 data class PositionComponent(
-    var pos: Vec2D = Vec2D(0f, 0f)
+    val pos: Vec3D = Vec3D(0f, 0f, 0f)
 ) : IGameComponent by Companion {
     companion object : GameComponentCompanion()
 }

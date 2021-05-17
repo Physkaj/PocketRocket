@@ -64,6 +64,11 @@ data class Vec2D(var x: Float = 0f, var y: Float = 0f) {
     fun minusElementwise(vec: Vec2D): Vec2D = Vec2D(this.x - vec.x, this.y - vec.y)
     fun timesElementwise(vec: Vec2D): Vec2D = Vec2D(this.x * vec.x, this.y * vec.y)
     fun divElementwise(vec: Vec2D): Vec2D = Vec2D(this.x / vec.x, this.y / vec.y)
+    fun rotate(angle: Float) {
+        val tmpx = x * cos(angle) + y * sin(angle)
+        y = -x * sin(angle) + y * cos(angle)
+        x = tmpx
+    }
 }
 
 operator fun Number.times(vec: Vec2D): Vec2D = vec.times(this)
@@ -140,16 +145,63 @@ data class Vec3D(var x: Float, var y: Float, var z: Float) {
     operator fun unaryPlus() = Vec3D(x, y, z)
     operator fun unaryMinus() = Vec3D(-x, -y, -z)
     operator fun plus(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + vec.z)
+    fun addTo(vec: Vec3D): Vec3D {
+        this.x += vec.x
+        this.y += vec.y
+        this.z += vec.z
+        return this
+    }
+
     operator fun minus(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - vec.z)
+    fun subFrom(vec: Vec3D): Vec3D {
+        this.x -= vec.x
+        this.y -= vec.y
+        this.z -= vec.z
+        return this
+    }
+
     operator fun times(vec: Vec3D): Float = dot(vec)
+    fun multWith(vec: Vec3D): Vec3D {
+        this.x *= vec.x
+        this.y *= vec.y
+        this.z *= vec.z
+        return this
+    }
+
     fun dot(vec: Vec3D): Float = this.x * vec.x + this.y * vec.y + this.z * vec.z
     fun cross(v2: Vec3D): Vec3D = Vec3D(this.y * v2.z - v2.y * this.z, this.z * v2.x - v2.z * this.x, this.x * v2.y - v2.x * this.y)
     operator fun times(factor: Number): Vec3D = Vec3D(x * factor.toFloat(), y * factor.toFloat(), z * factor.toFloat())
     operator fun div(factor: Number): Vec3D = Vec3D(x / factor.toFloat(), y / factor.toFloat(), z / factor.toFloat())
+    fun divBy(vec: Vec3D): Vec3D {
+        this.x /= vec.x
+        this.y /= vec.y
+        this.z /= vec.z
+        return this
+    }
+
     fun plusElementwise(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + vec.z)
     fun minusElementwise(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - vec.z)
     fun timesElementwise(vec: Vec3D): Vec3D = Vec3D(this.x * vec.x, this.y * vec.y, this.z * vec.z)
     fun divElementwise(vec: Vec3D): Vec3D = Vec3D(this.x / vec.x, this.y / vec.y, this.z / vec.z)
+    fun rotateX(angle: Float) {
+        val tmpy = y * cos(angle) + z * sin(angle)
+        z = -y * sin(angle) + z * cos(angle)
+        y = tmpy
+    }
+
+    fun rotateY(angle: Float) {
+        val tmpz = z * cos(angle) + x * sin(angle)
+        x = -z * sin(angle) + x * cos(angle)
+        z = tmpz
+    }
+
+    fun rotateZ(angle: Float) {
+        val tmpx = x * cos(angle) + y * sin(angle)
+        y = -x * sin(angle) + y * cos(angle)
+        x = tmpx
+    }
+
+    fun to2D(): Vec2D = Vec2D(x, y)
 }
 
 operator fun Number.times(vec: Vec3D): Vec3D = vec.times(this)

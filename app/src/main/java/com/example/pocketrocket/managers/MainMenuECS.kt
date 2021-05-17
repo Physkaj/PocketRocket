@@ -11,6 +11,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
     private lateinit var backgroundRenderingSystem: BackgroundRenderingSystem
     private lateinit var shapeRenderingSystem: ShapeRenderingSystem
     private lateinit var gravitySystem: GravitySystem
+    private lateinit var orbitalMotionSystem: OrbitalMotionSystem
     private lateinit var eulerMotionSystem: EulerMotionSystem
     private lateinit var resetAccelerationSystem: ResetAccelerationSystem
 
@@ -23,6 +24,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
     override fun update(t: Float, dt: Float) {
         resetAccelerationSystem.reset()
         gravitySystem.gravitate()
+        orbitalMotionSystem.updateOrbits(dt)
         eulerMotionSystem.activate(dt)
     }
 
@@ -35,13 +37,16 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(BackgroundComponent::class)
         registerComponent(ColorComponent::class)
         registerComponent(GravityComponent::class)
+        registerComponent(OrbitComponent::class)
         registerComponent(PhysicalBodyComponent::class)
+        registerComponent(ParentComponent::class)
         registerComponent(PositionComponent::class)
         registerComponent(ShapeComponent::class)
 
         growComponentPoolSize(ColorComponent.componentID, 1000)
         growComponentPoolSize(GravityComponent.componentID, 1000)
-        growComponentPoolSize(PhysicalBodyComponent.componentID, 1000)
+        growComponentPoolSize(OrbitComponent.componentID, 1000)
+        growComponentPoolSize(ParentComponent.componentID, 1000)
         growComponentPoolSize(PositionComponent.componentID, 1000)
         growComponentPoolSize(ShapeComponent.componentID, 1000)
     }
@@ -57,17 +62,10 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
 
         // Galaxy centre
         val centreMass: Float = 0.1f
-        createEntity().apply {
-            addComponent<PositionComponent>(this, PositionComponent.componentID).let {
-                it.pos.x = 0f
-                it.pos.y = 0f
-            }
-            addComponent<GravityComponent>(this, GravityComponent.componentID).let {
-                it.mass = centreMass
-            }
-            addComponent<ColorComponent>(this, ColorComponent.componentID).let {
-                it.color = Color.GREEN
-            }
+        val centreEntity = createEntity().apply {
+            addComponent<PositionComponent>(this, PositionComponent.componentID).pos.clear()
+            addComponent<GravityComponent>(this, GravityComponent.componentID).mass = centreMass
+            addComponent<ColorComponent>(this, ColorComponent.componentID).color = Color.GREEN
             addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
                 it.shapeType = ShapeComponent.ShapeType.CIRCLE
                 it.r = 0.01f
@@ -75,19 +73,15 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         }
 
         // Generate stars
-        val starMass = 0.00001f
         val nStars = 1000
         for (i in 0 until nStars) {
             createEntity().apply {
                 setupStar(
                     addComponent<PositionComponent>(this, PositionComponent.componentID),
-                    addComponent<PhysicalBodyComponent>(this, PhysicalBodyComponent.componentID),
-                    centreMass,
+                    addComponent<OrbitComponent>(this, OrbitComponent.componentID),
                     addComponent<ColorComponent>(this, ColorComponent.componentID)
                 )
-                addComponent<GravityComponent>(this, GravityComponent.componentID).let {
-                    it.mass = starMass
-                }
+                addComponent<ParentComponent>(this, ParentComponent.componentID).parentEid = centreEntity
                 addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
                     it.shapeType = ShapeComponent.ShapeType.CIRCLE
                     it.r = 0.01f
@@ -97,6 +91,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
     }
 
     private fun setupSystems() {
+        resetAccelerationSystem = ResetAccelerationSystem(this).also {
+            addSystem(it)
+        }
         gravitySystem = GravitySystem(this).also {
             it.significantMassLimit = 0.001f
             addSystem(it)
@@ -104,7 +101,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         eulerMotionSystem = EulerMotionSystem(this).also {
             addSystem(it)
         }
-        resetAccelerationSystem = ResetAccelerationSystem(this).also {
+        orbitalMotionSystem = OrbitalMotionSystem(this).also {
             addSystem(it)
         }
         backgroundRenderingSystem = BackgroundRenderingSystem(this).also {
@@ -115,22 +112,19 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         }
     }
 
-    private fun setupStar(posComp: PositionComponent, physComp: PhysicalBodyComponent, centreMass: Float, colorComp: ColorComponent) {
-
-        val shortestApoapsis = 0.5
-        val longestApoapsis = 0.9
-        val shortestPeriapsis = 0.1
-        val longestPeriapsis = 1.0
-        val minEcc = 0.1
-        val maxEcc = 0.15
+    private fun setupStar(posComp: PositionComponent, orbComp: OrbitComponent, colorComp: ColorComponent) {
+        val shortestApoapsis = 0.2
+        val longestApoapsis = 1f
+        val minEcc = 0.5
+        val maxEcc = 0.51
         val minAngle = 0.0
-        val maxAngle = 10 * PI
+        val maxAngle = 4 * PI
         val k1 = shortestApoapsis
         val k2 = ln(longestApoapsis / shortestApoapsis) / maxAngle
 
         // Apoapsis r = a+c = a + ecc*a = a*(1+ecc)
-        var angle = Random.nextDouble(minAngle, maxAngle)
-        val r = k1 * exp(angle * k2) // Logarithmic spiral equation
+        val argApoapsis = Random.nextDouble(minAngle, maxAngle)
+        val r = k1 * exp(argApoapsis * k2) // Logarithmic spiral equation
         // Eccentricity
         val ecc = Random.nextDouble(minEcc, maxEcc)
         // Semi-major axis
@@ -141,26 +135,24 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         val c = a * ecc
 
         // Periapsis in y-direction and apoapsis in x-direction
-        val t = Random.nextDouble(0.0, 2 * PI)
-        val randX = a * cos(t) + c
-        val randY = b * sin(t)
+        val arg = Random.nextDouble(0.0, 2 * PI)
+        val randX = a * cos(arg) + c
+        val randY = b * sin(arg)
         // Rotate according to the spiral position
-        posComp.pos.x = (cos(angle) * randX + sin(angle) * randY).toFloat()
-        posComp.pos.y = (-sin(angle) * randX + cos(angle) * randY).toFloat()
-        // Orbital speed
-        val v = sqrt(centreMass * (2 / posComp.pos.r - 1 / a))
-        physComp.vel.x = (v * posComp.pos.y / r).toFloat()
-        physComp.vel.y = (-v * posComp.pos.x / r).toFloat()
+        posComp.pos.x = (cos(argApoapsis) * randX + sin(argApoapsis) * randY).toFloat()
+        posComp.pos.y = (-sin(argApoapsis) * randX + cos(argApoapsis) * randY).toFloat()
+        // Orbital parameters
+        orbComp.a = a.toFloat()
+        orbComp.b = b.toFloat()
+        orbComp.inclination = 0f
+        orbComp.argApoapsis = argApoapsis.toFloat()
+        orbComp.arg = arg.toFloat()
 
         // Color it
-        val factor = (angle - minAngle) / (maxAngle - minAngle)
+        val factor = (argApoapsis.absoluteValue - minAngle) / (maxAngle - minAngle)
         val cR = 1.0
         val cG = 1.0 - factor
         val cB = 1.0 - factor
         colorComp.color = (0xff shl 24) or ((cR * 0xff).toInt() shl 16) or ((cG * 0xff).toInt() shl 8) or (cB * 0xff).toInt()
-
-        // Let gravity system handle the acceleration
-        physComp.acc.x = 0f
-        physComp.acc.y = 0f
     }
 }
