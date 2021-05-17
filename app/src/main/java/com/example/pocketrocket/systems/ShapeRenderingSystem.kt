@@ -43,6 +43,9 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                     val screenPos2 = screen.screenCoordinates(shape.x, shape.y)
                     canvas.drawRect(screenPos.x, screenPos.y, screenPos2.x, screenPos2.y, paint)
                 }
+                ShapeComponent.ShapeType.POINT -> {
+                    canvas.drawPoint(screenPos.x, screenPos.y, paint)
+                }
             }
         }
     }

@@ -11,7 +11,8 @@ data class ShapeComponent(
     enum class ShapeType {
         CIRCLE,
         LINE,
-        RECTANGLE
+        RECTANGLE,
+        POINT
     }
 
     var r: Float

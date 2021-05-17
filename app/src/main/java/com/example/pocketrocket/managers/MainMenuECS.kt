@@ -73,7 +73,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         }
 
         // Generate stars
-        val nStars = 1000
+        val nStars = 5000
         for (i in 0 until nStars) {
             createEntity().apply {
                 setupStar(
@@ -83,8 +83,8 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
                 )
                 addComponent<ParentComponent>(this, ParentComponent.componentID).parentEid = centreEntity
                 addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
-                    it.shapeType = ShapeComponent.ShapeType.CIRCLE
-                    it.r = 0.01f
+                    it.shapeType = ShapeComponent.ShapeType.POINT
+                    //it.r = 0.01f
                 }
             }
         }
@@ -115,15 +115,15 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
     private fun setupStar(posComp: PositionComponent, orbComp: OrbitComponent, colorComp: ColorComponent) {
         val shortestApoapsis = 0.2
         val longestApoapsis = 1f
-        val minEcc = 0.5
-        val maxEcc = 0.51
+        val minEcc = 0.2
+        val maxEcc = 0.5
         val minAngle = 0.0
-        val maxAngle = 4 * PI
+        val maxAngle = 2 * PI
         val k1 = shortestApoapsis
         val k2 = ln(longestApoapsis / shortestApoapsis) / maxAngle
 
         // Apoapsis r = a+c = a + ecc*a = a*(1+ecc)
-        val argApoapsis = Random.nextDouble(minAngle, maxAngle)
+        var argApoapsis = Random.nextDouble(minAngle, maxAngle)
         val r = k1 * exp(argApoapsis * k2) // Logarithmic spiral equation
         // Eccentricity
         val ecc = Random.nextDouble(minEcc, maxEcc)
@@ -138,6 +138,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         val arg = Random.nextDouble(0.0, 2 * PI)
         val randX = a * cos(arg) + c
         val randY = b * sin(arg)
+        // Create to different arms
+        val nArms = 3
+        argApoapsis += 2 * PI / nArms * Random.nextInt(0, nArms)
         // Rotate according to the spiral position
         posComp.pos.x = (cos(argApoapsis) * randX + sin(argApoapsis) * randY).toFloat()
         posComp.pos.y = (-sin(argApoapsis) * randX + cos(argApoapsis) * randY).toFloat()
@@ -149,9 +152,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         orbComp.arg = arg.toFloat()
 
         // Color it
-        val factor = (argApoapsis.absoluteValue - minAngle) / (maxAngle - minAngle)
-        val cR = 1.0
-        val cG = 1.0 - factor
+        val factor = (r - longestApoapsis) / (longestApoapsis - shortestApoapsis)
+        val cR = factor
+        val cG = 0
         val cB = 1.0 - factor
         colorComp.color = (0xff shl 24) or ((cR * 0xff).toInt() shl 16) or ((cG * 0xff).toInt() shl 8) or (cB * 0xff).toInt()
     }
