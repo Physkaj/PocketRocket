@@ -18,7 +18,7 @@ class EulerMotionSystem(callback: ECSCallback) : GameSystem(callback) {
 
             position.pos.addTo(physical.vel * dt)
             physical.vel.addTo(physical.acc * dt)
-            //position.pos += physical.acc * dt*dt * 0.5f
+            position.pos.addTo(physical.acc * dt * dt * 0.5f)
         }
     }
 }
