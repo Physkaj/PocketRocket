@@ -4,8 +4,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.systems.*
+import com.example.pocketrocket.utils.SpiralGalaxy
 import kotlin.math.*
-import kotlin.random.Random
 
 class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameManger) {
     private lateinit var backgroundRenderingSystem: BackgroundRenderingSystem
@@ -44,7 +44,6 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(ShapeComponent::class)
 
         growComponentPoolSize(ColorComponent.componentID, 1000)
-        growComponentPoolSize(GravityComponent.componentID, 1000)
         growComponentPoolSize(OrbitComponent.componentID, 1000)
         growComponentPoolSize(ParentComponent.componentID, 1000)
         growComponentPoolSize(PositionComponent.componentID, 1000)
@@ -56,7 +55,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         createEntity().apply {
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
             addComponent<ColorComponent>(this, ColorComponent.componentID).let {
-                it.color = Color.DKGRAY
+                it.color = Color.BLACK
             }
         }
 
@@ -76,15 +75,24 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         val nStars = 5000
         for (i in 0 until nStars) {
             createEntity().apply {
-                setupStar(
-                    addComponent<PositionComponent>(this, PositionComponent.componentID),
-                    addComponent<OrbitComponent>(this, OrbitComponent.componentID),
-                    addComponent<ColorComponent>(this, ColorComponent.componentID)
+                val positionComponent = addComponent<PositionComponent>(this, PositionComponent.componentID)
+                val orbitComponent = addComponent<OrbitComponent>(this, OrbitComponent.componentID)
+                SpiralGalaxy.setupStar(
+                    positionComponent,
+                    orbitComponent
                 )
+                // Color it
+                val factor = (orbitComponent.apoapsis - SpiralGalaxy.maxApoapsis) / (SpiralGalaxy.maxApoapsis - SpiralGalaxy.minApoapsis)
+                val cR = factor
+                val cG = 0
+                val cB = 1.0 - factor
+                addComponent<ColorComponent>(this, ColorComponent.componentID).color =
+                    (0xff shl 24) or ((cR * 0xff).toInt() shl 16) or ((cG * 0xff).toInt() shl 8) or (cB * 0xff).toInt()
+
                 addComponent<ParentComponent>(this, ParentComponent.componentID).parentEid = centreEntity
                 addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
-                    it.shapeType = ShapeComponent.ShapeType.POINT
-                    //it.r = 0.01f
+                    it.shapeType = ShapeComponent.ShapeType.CIRCLE
+                    it.r = 0.005f
                 }
             }
         }
@@ -110,52 +118,5 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         shapeRenderingSystem = ShapeRenderingSystem(this).also {
             addSystem(it)
         }
-    }
-
-    private fun setupStar(posComp: PositionComponent, orbComp: OrbitComponent, colorComp: ColorComponent) {
-        val shortestApoapsis = 0.2
-        val longestApoapsis = 1f
-        val minEcc = 0.2
-        val maxEcc = 0.5
-        val minAngle = 0.0
-        val maxAngle = 2 * PI
-        val k1 = shortestApoapsis
-        val k2 = ln(longestApoapsis / shortestApoapsis) / maxAngle
-
-        // Apoapsis r = a+c = a + ecc*a = a*(1+ecc)
-        var argApoapsis = Random.nextDouble(minAngle, maxAngle)
-        val r = k1 * exp(argApoapsis * k2) // Logarithmic spiral equation
-        // Eccentricity
-        val ecc = Random.nextDouble(minEcc, maxEcc)
-        // Semi-major axis
-        val a = r / (1 + ecc)
-        // Semi-minor axis
-        val b = sqrt(a * a * (1 - ecc * ecc))
-        // Linear eccentricity
-        val c = a * ecc
-
-        // Periapsis in y-direction and apoapsis in x-direction
-        val arg = Random.nextDouble(0.0, 2 * PI)
-        val randX = a * cos(arg) + c
-        val randY = b * sin(arg)
-        // Create to different arms
-        val nArms = 3
-        argApoapsis += 2 * PI / nArms * Random.nextInt(0, nArms)
-        // Rotate according to the spiral position
-        posComp.pos.x = (cos(argApoapsis) * randX + sin(argApoapsis) * randY).toFloat()
-        posComp.pos.y = (-sin(argApoapsis) * randX + cos(argApoapsis) * randY).toFloat()
-        // Orbital parameters
-        orbComp.a = a.toFloat()
-        orbComp.b = b.toFloat()
-        orbComp.inclination = 0f
-        orbComp.argApoapsis = argApoapsis.toFloat()
-        orbComp.arg = arg.toFloat()
-
-        // Color it
-        val factor = (r - longestApoapsis) / (longestApoapsis - shortestApoapsis)
-        val cR = factor
-        val cG = 0
-        val cB = 1.0 - factor
-        colorComp.color = (0xff shl 24) or ((cR * 0xff).toInt() shl 16) or ((cG * 0xff).toInt() shl 8) or (cB * 0xff).toInt()
     }
 }

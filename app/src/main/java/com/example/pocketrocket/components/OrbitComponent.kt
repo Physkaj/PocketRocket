@@ -23,4 +23,12 @@ data class OrbitComponent(
     // Eccentricity, how much it differs from a circle
     val e: Float
         get() = c / a
+
+    // Apoapsis the furthest distance from the rotation focus
+    val apoapsis: Float
+        get() = a + c
+
+    // Apoapsis the furthest distance from the rotation focus
+    val periapsis: Float
+        get() = a - c
 }
