@@ -7,6 +7,7 @@ import com.example.pocketrocket.systems.*
 import com.example.pocketrocket.utils.SpiralGalaxy
 import kotlin.math.*
 
+
 class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameManger) {
     private lateinit var backgroundRenderingSystem: BackgroundRenderingSystem
     private lateinit var shapeRenderingSystem: ShapeRenderingSystem
@@ -82,12 +83,12 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
                     orbitComponent
                 )
                 // Color it
-                val factor = (orbitComponent.apoapsis - SpiralGalaxy.maxApoapsis) / (SpiralGalaxy.maxApoapsis - SpiralGalaxy.minApoapsis)
-                val cR = factor
-                val cG = 0
-                val cB = 1.0 - factor
+                val rFactor = 1f - (orbitComponent.apoapsis - SpiralGalaxy.minApoapsis) / (SpiralGalaxy.maxApoapsis - SpiralGalaxy.minApoapsis)
+                val gFactor =
+                    1f - (orbitComponent.e - 0.5 * (SpiralGalaxy.minEcc + SpiralGalaxy.maxEcc)).absoluteValue / (SpiralGalaxy.maxEcc - SpiralGalaxy.minEcc)
+                val bFactor = 1f
                 addComponent<ColorComponent>(this, ColorComponent.componentID).color =
-                    (0xff shl 24) or ((cR * 0xff).toInt() shl 16) or ((cG * 0xff).toInt() shl 8) or (cB * 0xff).toInt()
+                    (0xff shl 24) or ((rFactor * 0xff).toInt() shl 16) or ((gFactor * 0xff).toInt() shl 8) or (bFactor * 0xff).toInt()
 
                 addComponent<ParentComponent>(this, ParentComponent.componentID).parentEid = centreEntity
                 addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {

@@ -23,15 +23,13 @@ object SpiralGalaxy {
 
     fun setupStar(posComp: PositionComponent, orbComp: OrbitComponent) {
         // Apoapsis r = a+c = a + ecc*a = a*(1+ecc)
-        //var argApoapsis = Random.nextDouble(minAngle, maxAngle)
-        //val r = k1 * exp(argApoapsis * k2)
-        val r: Float = Random.nextFloat(minApoapsis, maxApoapsis)
+        val apoapsis: Float = Random.nextFloat(minApoapsis, maxApoapsis)
         // Logarithmic spiral equation
-        var argApoapsis: Float = ln(r / k1) / k2 + minArg
+        var argApoapsis: Float = ln(apoapsis / k1) / k2 + minArg
         // Eccentricity
         val ecc = Random.nextFloat(minEcc, maxEcc)
         // Semi-major axis
-        val a = r / (1 + ecc)
+        val a = apoapsis / (1 + ecc)
         // Semi-minor axis
         val b = sqrt(a * a * (1 - ecc * ecc))
         // Linear eccentricity
