@@ -17,7 +17,7 @@ class ShapeRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 signature.get(ColorComponent.componentID)
     }
 
-    fun activate(canvas: Canvas) {
+    fun drawShapes(canvas: Canvas) {
         for (eid in entityList) {
             val position = callback.getComponent<PositionComponent>(eid, PositionComponent.componentID)
             val shape = callback.getComponent<ShapeComponent>(eid, ShapeComponent.componentID)

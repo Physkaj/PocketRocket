@@ -11,6 +11,7 @@ import kotlin.math.*
 class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameManger) {
     private lateinit var backgroundRenderingSystem: BackgroundRenderingSystem
     private lateinit var shapeRenderingSystem: ShapeRenderingSystem
+    private lateinit var textRenderingSystem: TextRenderingSystem
     private lateinit var gravitySystem: GravitySystem
     private lateinit var orbitalMotionSystem: OrbitalMotionSystem
     private lateinit var eulerMotionSystem: EulerMotionSystem
@@ -31,7 +32,8 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
 
     override fun draw(canvas: Canvas) {
         backgroundRenderingSystem.drawBackground(canvas)
-        shapeRenderingSystem.activate(canvas)
+        shapeRenderingSystem.drawShapes(canvas)
+        textRenderingSystem.drawTexts(canvas)
     }
 
     private fun setupComponents() {
@@ -43,6 +45,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(ParentComponent::class)
         registerComponent(PositionComponent::class)
         registerComponent(ShapeComponent::class)
+        registerComponent(TextComponent::class)
 
         growComponentPoolSize(ColorComponent.componentID, 1000)
         growComponentPoolSize(OrbitComponent.componentID, 1000)
@@ -59,17 +62,28 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
                 it.color = Color.BLACK
             }
         }
+        // Debug info
+        createEntity().apply {
+            addComponent<TextComponent>(this, TextComponent.componentID).let {
+                it.text = "FPS"
+                it.textSize = 72f
+                it.textColor = Color.GREEN
+                it.useRelativeCoordinates = false
+                it.textPosition.x = -0.9f
+                it.textPosition.y = 0.9f
+            }
+        }
 
         // Galaxy centre
         val centreMass: Float = 0.1f
         val centreEntity = createEntity().apply {
             addComponent<PositionComponent>(this, PositionComponent.componentID).pos.clear()
             addComponent<GravityComponent>(this, GravityComponent.componentID).mass = centreMass
-            addComponent<ColorComponent>(this, ColorComponent.componentID).color = Color.GREEN
+            /*addComponent<ColorComponent>(this, ColorComponent.componentID).color = Color.GREEN
             addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
                 it.shapeType = ShapeComponent.ShapeType.CIRCLE
                 it.r = 0.01f
-            }
+            }*/
         }
 
         // Generate stars
@@ -117,6 +131,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
             addSystem(it)
         }
         shapeRenderingSystem = ShapeRenderingSystem(this).also {
+            addSystem(it)
+        }
+        textRenderingSystem = TextRenderingSystem(this).also {
             addSystem(it)
         }
     }

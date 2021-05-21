@@ -44,8 +44,8 @@ class GravitySystem(callback: ECSCallback, var significantMassLimit: Float = 0f)
                 val force = calculateForce(position1.pos, gravity1.mass, position2.pos, gravity2.mass)
 
                 // Allow for immovable gravity objects
-                physical1?.acc?.addTo(force / gravity1.mass)
-                physical2?.acc?.subFrom(force / gravity2.mass)
+                physical1?.acc?.plusAssign(force / gravity1.mass)
+                physical2?.acc?.plusAssign(force / gravity2.mass)
             }
         }
     }

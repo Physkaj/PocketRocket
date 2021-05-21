@@ -55,11 +55,27 @@ data class Vec2D(var x: Float = 0f, var y: Float = 0f) {
     operator fun unaryPlus() = Vec2D(x, y)
     operator fun unaryMinus() = Vec2D(-x, -y)
     operator fun plus(vec: Vec2D): Vec2D = Vec2D(this.x + vec.x, this.y + vec.y)
+    operator fun plusAssign(vec: Vec2D) {
+        this.x += vec.x
+        this.y += vec.y
+    }
+
     operator fun minus(vec: Vec2D): Vec2D = Vec2D(this.x - vec.x, this.y - vec.y)
+    operator fun minusAssign(vec: Vec2D) {
+        this.x -= vec.x
+        this.y -= vec.y
+    }
+
     operator fun times(vec: Vec2D): Float = dot(vec)
     fun dot(vec: Vec2D): Float = this.x * vec.x + this.y * vec.y
     operator fun times(factor: Number): Vec2D = Vec2D(x * factor.toFloat(), y * factor.toFloat())
+    operator fun timesAssign(factor: Number) {
+        this.x *= factor.toFloat()
+        this.y *= factor.toFloat()
+    }
+
     operator fun div(factor: Number): Vec2D = Vec2D(x / factor.toFloat(), y / factor.toFloat())
+    operator fun divAssign(factor: Number) = timesAssign(1f / factor.toFloat())
     fun plusElementwise(vec: Vec2D): Vec2D = Vec2D(this.x + vec.x, this.y + vec.y)
     fun minusElementwise(vec: Vec2D): Vec2D = Vec2D(this.x - vec.x, this.y - vec.y)
     fun timesElementwise(vec: Vec2D): Vec2D = Vec2D(this.x * vec.x, this.y * vec.y)
@@ -145,38 +161,34 @@ data class Vec3D(var x: Float, var y: Float, var z: Float) {
     operator fun unaryPlus() = Vec3D(x, y, z)
     operator fun unaryMinus() = Vec3D(-x, -y, -z)
     operator fun plus(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + vec.z)
-    fun addTo(vec: Vec3D): Vec3D {
+    operator fun plusAssign(vec: Vec3D) {
         this.x += vec.x
         this.y += vec.y
         this.z += vec.z
-        return this
     }
 
     operator fun minus(vec: Vec3D): Vec3D = Vec3D(this.x - vec.x, this.y - vec.y, this.z - vec.z)
-    fun subFrom(vec: Vec3D): Vec3D {
+    operator fun minusAssign(vec: Vec3D) {
         this.x -= vec.x
         this.y -= vec.y
         this.z -= vec.z
-        return this
     }
 
     operator fun times(vec: Vec3D): Float = dot(vec)
-    fun multWith(vec: Vec3D): Vec3D {
+    operator fun timesAssign(vec: Vec3D) {
         this.x *= vec.x
         this.y *= vec.y
         this.z *= vec.z
-        return this
     }
 
     fun dot(vec: Vec3D): Float = this.x * vec.x + this.y * vec.y + this.z * vec.z
     fun cross(v2: Vec3D): Vec3D = Vec3D(this.y * v2.z - v2.y * this.z, this.z * v2.x - v2.z * this.x, this.x * v2.y - v2.x * this.y)
     operator fun times(factor: Number): Vec3D = Vec3D(x * factor.toFloat(), y * factor.toFloat(), z * factor.toFloat())
     operator fun div(factor: Number): Vec3D = Vec3D(x / factor.toFloat(), y / factor.toFloat(), z / factor.toFloat())
-    fun divBy(vec: Vec3D): Vec3D {
+    operator fun divAssign(vec: Vec3D) {
         this.x /= vec.x
         this.y /= vec.y
         this.z /= vec.z
-        return this
     }
 
     fun plusElementwise(vec: Vec3D): Vec3D = Vec3D(this.x + vec.x, this.y + vec.y, this.z + vec.z)
