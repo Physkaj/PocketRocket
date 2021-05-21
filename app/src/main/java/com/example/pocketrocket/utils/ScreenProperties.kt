@@ -12,6 +12,7 @@ abstract class ScreenProperties {
 }
 
 class MutableScreenProperties(private var _width: Int = 0, private var _height: Int = 0) : ScreenProperties() {
+    constructor(screenSize: Vec2D) : this(screenSize.x.toInt(), screenSize.y.toInt())
     override val width: Int
         get() = _width
     override val height: Int

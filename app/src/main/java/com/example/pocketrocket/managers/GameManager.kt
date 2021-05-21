@@ -2,19 +2,20 @@ package com.example.pocketrocket.managers
 
 import android.content.Context
 import android.view.SurfaceHolder
-import com.example.pocketrocket.utils.MutableScreenProperties
-import com.example.pocketrocket.utils.ScreenProperties
+import com.example.pocketrocket.utils.*
 import java.lang.Exception
 
 interface GameManagerCallback {
     fun getScreenProperties(): ScreenProperties
+    fun getThreadProperties(): ThreadProperties
 }
 
-class GameManager(private val context: Context, private val surfaceHolder: SurfaceHolder, screenWidth: Int, screenHeight: Int) :
+class GameManager(private val context: Context, private val surfaceHolder: SurfaceHolder, screenSize: Vec2D) :
     SurfaceHolder.Callback, GameManagerCallback {
 
-    private val screenProperties = MutableScreenProperties(screenWidth, screenHeight)
+    private val screenProperties = MutableScreenProperties(screenSize)
     override fun getScreenProperties(): ScreenProperties = screenProperties
+    override fun getThreadProperties() = ThreadProperties(timeManager.averageFPS, timeManager.averageUPS, timeManager.isRunning)
 
     private var ecsManager: ECSManager? = null
     fun addECS(ecsManager: ECSManager) {

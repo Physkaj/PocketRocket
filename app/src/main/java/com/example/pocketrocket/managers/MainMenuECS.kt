@@ -2,6 +2,7 @@ package com.example.pocketrocket.managers
 
 import android.graphics.Canvas
 import android.graphics.Color
+import android.util.Log
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.systems.*
 import com.example.pocketrocket.utils.SpiralGalaxy
@@ -10,6 +11,7 @@ import kotlin.math.*
 
 class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameManger) {
     private lateinit var backgroundRenderingSystem: BackgroundRenderingSystem
+    private lateinit var debugSystem: DebugSystem
     private lateinit var shapeRenderingSystem: ShapeRenderingSystem
     private lateinit var textRenderingSystem: TextRenderingSystem
     private lateinit var gravitySystem: GravitySystem
@@ -28,6 +30,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         gravitySystem.gravitate()
         orbitalMotionSystem.updateOrbits(dt)
         eulerMotionSystem.activate(dt)
+        debugSystem.doDebugStuff()
     }
 
     override fun draw(canvas: Canvas) {
@@ -39,6 +42,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
     private fun setupComponents() {
         registerComponent(BackgroundComponent::class)
         registerComponent(ColorComponent::class)
+        registerComponent(DebugComponent::class)
         registerComponent(GravityComponent::class)
         registerComponent(OrbitComponent::class)
         registerComponent(PhysicalBodyComponent::class)
@@ -60,17 +64,6 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
             addComponent<ColorComponent>(this, ColorComponent.componentID).let {
                 it.color = Color.BLACK
-            }
-        }
-        // Debug info
-        createEntity().apply {
-            addComponent<TextComponent>(this, TextComponent.componentID).let {
-                it.text = "FPS"
-                it.textSize = 72f
-                it.textColor = Color.GREEN
-                it.useRelativeCoordinates = false
-                it.textPosition.x = -0.9f
-                it.textPosition.y = 0.9f
             }
         }
 
@@ -134,6 +127,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
             addSystem(it)
         }
         textRenderingSystem = TextRenderingSystem(this).also {
+            addSystem(it)
+        }
+        debugSystem = DebugSystem(this).also {
             addSystem(it)
         }
     }

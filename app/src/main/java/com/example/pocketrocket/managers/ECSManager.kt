@@ -5,6 +5,7 @@ import com.example.pocketrocket.components.*
 import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.systems.GameSystem
 import com.example.pocketrocket.utils.ScreenProperties
+import com.example.pocketrocket.utils.ThreadProperties
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -16,14 +17,17 @@ interface ECSCallback {
     fun <T : IGameComponent> getComponent(eid: EidType, cid: CidType): T
     fun <T : IGameComponent> getComponentOrNull(eid: EidType, cid: CidType): T?
     fun <T : IGameComponent> addComponent(eid: EidType, cid: CidType): T
-    fun getScreenProperties(): ScreenProperties
     fun getComponentPoolSize(cid: CidType): Int
     fun growComponentPoolSize(cid: CidType, size: Int)
+
+    fun getScreenProperties(): ScreenProperties
+    fun getThreadProperties(): ThreadProperties
 }
 
 abstract class ECSManager(protected val callbackGameManager: GameManagerCallback) : ECSCallback {
 
     override fun getScreenProperties() = callbackGameManager.getScreenProperties()
+    override fun getThreadProperties() = callbackGameManager.getThreadProperties()
 
     fun resize(width: Int, height: Int) {
         val screenProperties = getScreenProperties()

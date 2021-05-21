@@ -3,9 +3,9 @@ package com.example.pocketrocket.systems
 import android.graphics.Canvas
 import android.graphics.Paint
 import com.example.pocketrocket.components.*
-import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.managers.ECSCallback
 import java.util.*
+
 
 class TextRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
     override fun appliesToSignature(signature: BitSet): Boolean {
@@ -31,7 +31,10 @@ class TextRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
 
             position = callback.getScreenProperties().screenCoordinates(position)
 
-            canvas.drawText(textComp.text, position.x, position.y, textPaint)
+            for (line in textComp.text.split("\n")) {
+                canvas.drawText(line, position.x, position.y, textPaint)
+                position.y += (textPaint.descent() - textPaint.ascent()) * textComp.lineSpacing
+            }
         }
     }
 }
