@@ -43,6 +43,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         registerComponent(BackgroundComponent::class)
         registerComponent(ColorComponent::class)
         registerComponent(DebugComponent::class)
+        registerComponent(GradientComponent::class)
         registerComponent(GravityComponent::class)
         registerComponent(OrbitComponent::class)
         registerComponent(PhysicalBodyComponent::class)
@@ -62,9 +63,14 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         // Background
         createEntity().apply {
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
-            addComponent<ColorComponent>(this, ColorComponent.componentID).let {
-                it.color = Color.BLACK
+            addComponent<GradientComponent>(this, GradientComponent.componentID).let {
+                it.colors.add(Color.RED)
+                it.colors.add(Color.BLUE)
+                it.gradientType = GradientType.LINEAR
             }
+            /*addComponent<ColorComponent>(this, ColorComponent.componentID).let {
+                it.color = Color.BLACK
+            }*/
         }
 
         // Galaxy centre

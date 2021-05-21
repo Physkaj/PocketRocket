@@ -25,7 +25,7 @@ class GameManager(private val context: Context, private val surfaceHolder: Surfa
         this.ecsManager = ecsManager
     }
 
-    private val timeManager = TimeManager(30f)
+    private val timeManager = TimeManager(60f)
 
     init {
         timeManager.onUpdate = this::onUpdate
