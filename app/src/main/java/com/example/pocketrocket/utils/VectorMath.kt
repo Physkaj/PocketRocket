@@ -1,6 +1,8 @@
 package com.example.pocketrocket.utils
 
 import java.lang.Math.cbrt
+import java.lang.NullPointerException
+import java.lang.NumberFormatException
 import kotlin.math.*
 import kotlin.random.Random
 
@@ -47,6 +49,11 @@ data class Vec2D(var x: Float = 0f, var y: Float = 0f) {
             1 -> y = value
             else -> throw IndexOutOfBoundsException("Invalid index: $i for a 2D vector.")
         }
+    }
+
+    fun setValues(x: Number, y: Number) {
+        this.x = x.toFloat()
+        this.y = y.toFloat()
     }
 
     fun clear() {
@@ -152,6 +159,12 @@ data class Vec3D(var x: Float, var y: Float, var z: Float) {
             2 -> z = value
             else -> throw IndexOutOfBoundsException("Invalid index: $i for a 3D vector.")
         }
+    }
+
+    fun setValues(x: Number, y: Number, z: Number) {
+        this.x = x.toFloat()
+        this.y = y.toFloat()
+        this.z = z.toFloat()
     }
 
     fun clear() {

@@ -3,6 +3,7 @@ package com.example.pocketrocket.managers
 import android.graphics.Canvas
 import android.graphics.Color
 import android.util.Log
+import android.util.Size
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.systems.*
 import com.example.pocketrocket.utils.SpiralGalaxy
@@ -39,11 +40,16 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         textRenderingSystem.drawTexts(canvas)
     }
 
+    override fun onResize(width: Int, height: Int) {
+        backgroundRenderingSystem.resizeBitmaps(width, height)
+    }
+
     private fun setupComponents() {
         registerComponent(BackgroundComponent::class)
         registerComponent(BitmapComponent::class)
         registerComponent(ColorComponent::class)
         registerComponent(DebugComponent::class)
+        registerComponent(GradientComponent::class)
         registerComponent(GravityComponent::class)
         registerComponent(OrbitComponent::class)
         registerComponent(PhysicalBodyComponent::class)
@@ -63,12 +69,14 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         // Background
         createEntity().apply {
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
-            addComponent<BitmapComponent>(this, BitmapComponent.componentID).let {
-                it.bitmap = backgroundRenderingSystem.createGradientBitmap(
-                    getScreenProperties().getRect(),
-                    listOf(Color.RED, Color.BLACK, Color.BLUE),
-                    GradientType.LINEAR
-                )
+            addComponent<BitmapComponent>(this, BitmapComponent.componentID).bitmap = null
+            addComponent<GradientComponent>(this, GradientComponent.componentID).let {
+                it.bitmapWidth = getScreenProperties().width
+                it.bitmapHeight = getScreenProperties().height
+                it.gradientFrom.setValues(1f, 0f)
+                it.gradientTo.setValues(0.2f, 2f)
+                it.colors = listOf(Color.RED, Color.BLACK, Color.BLUE)
+                it.gradientType = GradientType.SWEEP
             }
         }
 
@@ -85,7 +93,7 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         }
 
         // Generate stars
-        val nStars = 5000
+        val nStars = 500
         for (i in 0 until nStars) {
             createEntity().apply {
                 val positionComponent = addComponent<PositionComponent>(this, PositionComponent.componentID)

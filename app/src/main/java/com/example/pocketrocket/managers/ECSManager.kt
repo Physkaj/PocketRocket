@@ -29,10 +29,12 @@ abstract class ECSManager(protected val callbackGameManager: GameManagerCallback
     override fun getScreenProperties() = callbackGameManager.getScreenProperties()
     override fun getThreadProperties() = callbackGameManager.getThreadProperties()
 
+    open fun onResize(width: Int, height: Int) {}
     fun resize(width: Int, height: Int) {
         val screenProperties = getScreenProperties()
         if (width == screenProperties.width && height == screenProperties.height) return
         // Do stuff with stuff that cares about the screen dimensions...
+        onResize(width, height)
     }
 
     private val entityManager = EntityManager()

@@ -3,14 +3,12 @@ package com.example.pocketrocket.systems
 import android.graphics.*
 import android.graphics.Paint.DITHER_FLAG
 import com.example.pocketrocket.components.*
+import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.managers.ECSCallback
+import com.example.pocketrocket.utils.ScreenProperties
+import java.lang.RuntimeException
 import java.util.*
 
-enum class GradientType {
-    LINEAR,
-    RADIAL,
-    SWEEP
-}
 
 class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
     override fun appliesToSignature(signature: BitSet): Boolean {
@@ -18,7 +16,8 @@ class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 (signature.get(ColorComponent.componentID) || signature.get(BitmapComponent.componentID))
     }
 
-    private val backgroundPaint: Paint = Paint(DITHER_FLAG).also {
+    private val backgroundPaint: Paint = Paint().also {
+        // Ignore transparency
         it.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
     }
 
@@ -26,36 +25,87 @@ class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
         for (eid in entityList) {
             val bkgComp = callback.getComponent<BackgroundComponent>(eid, BackgroundComponent.componentID)
             val bitmapComp = callback.getComponentOrNull<BitmapComponent>(eid, BitmapComponent.componentID)
-            if (bitmapComp != null)
+            if (bitmapComp != null) {
+                if (bitmapComp.bitmap == null) {
+                    bitmapComp.bitmap = generateBackgroundBitmap(eid)
+                }
                 canvas.drawBitmap(bitmapComp.bitmap!!, 0f, 0f, backgroundPaint)
+            }
             val color = callback.getComponentOrNull<ColorComponent>(eid, ColorComponent.componentID)
             if (color != null)
                 canvas.drawColor(color.color, bkgComp.drawMode)
         }
     }
 
-    fun createGradientBitmap(size: Rect, colors: Collection<Int>, type: GradientType): Bitmap {
-        val bitmap = Bitmap.createBitmap(size.width(), size.height(), Bitmap.Config.ARGB_8888)
-        backgroundPaint.shader = when (type) {
-            GradientType.LINEAR -> LinearGradient(
-                0f, 0f,
-                callback.getScreenProperties().width.toFloat(), callback.getScreenProperties().height.toFloat(),
-                colors.toIntArray(), null,
-                Shader.TileMode.CLAMP
-            )
-            GradientType.RADIAL -> RadialGradient(
-                callback.getScreenProperties().width * 0.5f, callback.getScreenProperties().height * 0.5f,
-                1f,
-                colors.toIntArray(), null,
-                Shader.TileMode.CLAMP
-            )
-            GradientType.SWEEP -> SweepGradient(
-                callback.getScreenProperties().width * 0.5f, callback.getScreenProperties().height * 0.5f,
-                colors.toIntArray(), null
-            )
+    private fun generateBackgroundBitmap(eid: EidType): Bitmap {
+        val gradientComp = callback.getComponentOrNull<GradientComponent>(eid, GradientComponent.componentID)
+        if (gradientComp != null)
+            return createGradientBitmap(gradientComp)
+        throw(RuntimeException("No available component to generate bitmap from"))
+    }
+
+    fun resizeBitmaps(width: Int, height: Int) {
+        for (eid in entityList) {
+            callback.getComponentOrNull<BitmapComponent>(eid, BitmapComponent.componentID)?.let { bmC ->
+                bmC.bitmap = null // It will be regenerated next tick
+                callback.getComponentOrNull<GradientComponent>(eid, GradientComponent.componentID)?.let { gC ->
+                    gC.bitmapWidth = width
+                    gC.bitmapHeight = height
+                }
+            }
         }
+    }
+
+    private fun createGradientBitmap(gC: GradientComponent): Bitmap {
+        val bitmap = Bitmap.createBitmap(gC.bitmapWidth, gC.bitmapHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawRect(0f, 0f, size.width().toFloat(), size.height().toFloat(), backgroundPaint)
+        val screen = callback.getScreenProperties()
+        val bitmapRect = Rect(0, 0, gC.bitmapWidth, gC.bitmapHeight)
+        val from = screen.screenCoordinates(gC.gradientFrom, bitmapRect)
+        when (gC.gradientType) {
+            GradientType.LINEAR -> {
+                val to = screen.screenCoordinates(gC.gradientTo, bitmapRect)
+                backgroundPaint.shader = LinearGradient(
+                    from.x, from.y, to.x, to.y,
+                    gC.colors.toIntArray(), null,
+                    Shader.TileMode.CLAMP
+                )
+                canvas.drawRect(bitmapRect, backgroundPaint)
+            }
+            GradientType.RADIAL -> {
+                val r0 = screen.screenRadius(gC.gradientR[0], bitmapRect)
+                val r1 = screen.screenRadius(gC.gradientR[1], bitmapRect)
+                backgroundPaint.shader = RadialGradient(
+                    from.x, from.y, r1,
+                    gC.colors.toIntArray(), null,
+                    Shader.TileMode.CLAMP
+                )
+                canvas.drawRect(bitmapRect, backgroundPaint)
+                // Save mode
+                val xfer = backgroundPaint.xfermode
+                backgroundPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+                canvas.drawCircle(from.x, from.y, r0, backgroundPaint)
+                // Restore mode
+                backgroundPaint.xfermode = xfer
+            }
+            GradientType.SWEEP -> {
+                val r0 = screen.screenRadius(gC.gradientR[0], bitmapRect)
+                backgroundPaint.shader = SweepGradient(
+                    from.x, from.y,
+                    gC.colors.toIntArray(), null
+                )
+                canvas.drawRect(bitmapRect, backgroundPaint)
+                if (r0 > 0f) {
+                    // Save mode
+                    val xfer = backgroundPaint.xfermode
+                    backgroundPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+
+                    canvas.drawCircle(from.x, from.y, r0, backgroundPaint)
+                    // Restore mode
+                    backgroundPaint.xfermode = xfer
+                }
+            }
+        }
         return bitmap
     }
 }
