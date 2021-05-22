@@ -37,6 +37,7 @@ class MainMenuActivity : AppCompatActivity() {
         gameManager.addECS(MainMenuECS(gameManager))
 
         binding.exitButton.setOnClickListener {
+            gameManager.stopGame()
             val homeIntent = Intent(Intent.ACTION_MAIN)
             homeIntent.addCategory(Intent.CATEGORY_HOME)
             homeIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP

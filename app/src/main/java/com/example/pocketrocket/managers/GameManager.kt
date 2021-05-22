@@ -54,14 +54,15 @@ class GameManager(private val context: Context, private val surfaceHolder: Surfa
     }
 
     // It takes some time to start the thread so do not check if it is running immediately after
-    private fun startGame() {
+    fun startGame() {
         if (ecsManager == null) return
         if (!timeManager.isRunning)
             gameThread = Thread(timeManager).also { it.start() }
     }
 
-    private fun stopGame() {
+    fun stopGame() {
         timeManager.stop()
+        gameThread?.join(500)
     }
 
     private fun onUpdate(t: Float, dt: Float) {
