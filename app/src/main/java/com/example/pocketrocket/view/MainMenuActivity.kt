@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.content.res.Resources
+import android.graphics.Rect
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.pocketrocket.databinding.ActivityMainMenuBinding
@@ -20,15 +21,15 @@ class MainMenuActivity : AppCompatActivity() {
         binding = ActivityMainMenuBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        var screenSize = Vec2D()
+        var screenSize = Rect(0, 0, 0, 0)
         when (Resources.getSystem().configuration.orientation) {
             ORIENTATION_LANDSCAPE -> {
-                screenSize.x = Resources.getSystem().displayMetrics.heightPixels.toFloat()
-                screenSize.y = Resources.getSystem().displayMetrics.widthPixels.toFloat()
+                screenSize.right = Resources.getSystem().displayMetrics.heightPixels
+                screenSize.bottom = Resources.getSystem().displayMetrics.widthPixels
             }
             ORIENTATION_PORTRAIT -> {
-                screenSize.y = Resources.getSystem().displayMetrics.heightPixels.toFloat()
-                screenSize.x = Resources.getSystem().displayMetrics.widthPixels.toFloat()
+                screenSize.bottom = Resources.getSystem().displayMetrics.heightPixels
+                screenSize.right = Resources.getSystem().displayMetrics.widthPixels
             }
         }
 

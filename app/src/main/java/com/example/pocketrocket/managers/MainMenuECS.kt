@@ -21,8 +21,8 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
 
     init {
         setupComponents()
-        setupEntities()
         setupSystems()
+        setupEntities()
     }
 
     override fun update(t: Float, dt: Float) {
@@ -41,9 +41,9 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
 
     private fun setupComponents() {
         registerComponent(BackgroundComponent::class)
+        registerComponent(BitmapComponent::class)
         registerComponent(ColorComponent::class)
         registerComponent(DebugComponent::class)
-        registerComponent(GradientComponent::class)
         registerComponent(GravityComponent::class)
         registerComponent(OrbitComponent::class)
         registerComponent(PhysicalBodyComponent::class)
@@ -63,14 +63,13 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         // Background
         createEntity().apply {
             addComponent<BackgroundComponent>(this, BackgroundComponent.componentID)
-            addComponent<GradientComponent>(this, GradientComponent.componentID).let {
-                it.colors.add(Color.RED)
-                it.colors.add(Color.BLUE)
-                it.gradientType = GradientType.LINEAR
+            addComponent<BitmapComponent>(this, BitmapComponent.componentID).let {
+                it.bitmap = backgroundRenderingSystem.createGradientBitmap(
+                    getScreenProperties().getRect(),
+                    listOf(Color.RED, Color.BLACK, Color.BLUE),
+                    GradientType.LINEAR
+                )
             }
-            /*addComponent<ColorComponent>(this, ColorComponent.componentID).let {
-                it.color = Color.BLACK
-            }*/
         }
 
         // Galaxy centre

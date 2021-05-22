@@ -1,57 +1,61 @@
 package com.example.pocketrocket.systems
 
 import android.graphics.*
-import android.graphics.drawable.ShapeDrawable
-import com.example.pocketrocket.components.BackgroundComponent
-import com.example.pocketrocket.components.ColorComponent
-import com.example.pocketrocket.components.GradientComponent
-import com.example.pocketrocket.components.GradientType
+import android.graphics.Paint.DITHER_FLAG
+import com.example.pocketrocket.components.*
 import com.example.pocketrocket.managers.ECSCallback
 import java.util.*
 
+enum class GradientType {
+    LINEAR,
+    RADIAL,
+    SWEEP
+}
+
 class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
     override fun appliesToSignature(signature: BitSet): Boolean {
-        return signature.get(BackgroundComponent.componentID)
+        return signature.get(BackgroundComponent.componentID) &&
+                (signature.get(ColorComponent.componentID) || signature.get(BitmapComponent.componentID))
     }
 
-    private val backgroundPaint: Paint = Paint()
+    private val backgroundPaint: Paint = Paint(DITHER_FLAG).also {
+        it.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC)
+    }
 
     fun drawBackground(canvas: Canvas) {
         for (eid in entityList) {
-            val background = callback.getComponent<BackgroundComponent>(eid, BackgroundComponent.componentID)
-            val gradient = callback.getComponentOrNull<GradientComponent>(eid, GradientComponent.componentID)
-            if (gradient != null) {
-
-                if (gradient.shader == null)
-                    gradient.shader = createNewShader(gradient)
-                backgroundPaint.shader = gradient.shader
-                canvas.drawRect(0f, 0f, callback.getScreenProperties().width, callback.getScreenProperties().height, backgroundPaint)
-            }
+            val bkgComp = callback.getComponent<BackgroundComponent>(eid, BackgroundComponent.componentID)
+            val bitmapComp = callback.getComponentOrNull<BitmapComponent>(eid, BitmapComponent.componentID)
+            if (bitmapComp != null)
+                canvas.drawBitmap(bitmapComp.bitmap!!, 0f, 0f, backgroundPaint)
             val color = callback.getComponentOrNull<ColorComponent>(eid, ColorComponent.componentID)
-            if (color != null) {
-                canvas.drawColor(color.color, background.drawMode)
-            }
+            if (color != null)
+                canvas.drawColor(color.color, bkgComp.drawMode)
         }
     }
 
-    private fun createNewShader(gradientComp: GradientComponent): Shader {
-        return when (gradientComp.gradientType) {
+    fun createGradientBitmap(size: Rect, colors: Collection<Int>, type: GradientType): Bitmap {
+        val bitmap = Bitmap.createBitmap(size.width(), size.height(), Bitmap.Config.ARGB_8888)
+        backgroundPaint.shader = when (type) {
             GradientType.LINEAR -> LinearGradient(
                 0f, 0f,
-                callback.getScreenProperties().width, callback.getScreenProperties().height,
-                gradientComp.colors.toIntArray(), null,
+                callback.getScreenProperties().width.toFloat(), callback.getScreenProperties().height.toFloat(),
+                colors.toIntArray(), null,
                 Shader.TileMode.CLAMP
             )
             GradientType.RADIAL -> RadialGradient(
                 callback.getScreenProperties().width * 0.5f, callback.getScreenProperties().height * 0.5f,
                 1f,
-                gradientComp.colors.toIntArray(), null,
+                colors.toIntArray(), null,
                 Shader.TileMode.CLAMP
             )
             GradientType.SWEEP -> SweepGradient(
                 callback.getScreenProperties().width * 0.5f, callback.getScreenProperties().height * 0.5f,
-                gradientComp.colors.toIntArray(), null
+                colors.toIntArray(), null
             )
         }
+        val canvas = Canvas(bitmap)
+        canvas.drawRect(0f, 0f, size.width().toFloat(), size.height().toFloat(), backgroundPaint)
+        return bitmap
     }
 }
