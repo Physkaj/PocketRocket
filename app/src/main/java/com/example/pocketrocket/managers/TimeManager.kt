@@ -37,7 +37,7 @@ class TimeManager(targetUPS: Float) : Runnable {
                 ++updateCount
                 timeLeft = updateCount * targetNanoSecPerUpdate - (System.nanoTime() - timeStart)
                 // No render until the target UPS is met
-            } while (false) // timeLeft < 0) This messes up debugging, set a debug flag?
+            } while (timeLeft < 0) //This messes up debugging, set a debug flag?
             // Draw everything
             onDraw?.invoke()
             ++frameCount
