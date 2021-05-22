@@ -1,8 +1,9 @@
 package com.example.pocketrocket.components
 
-data class DirectionComponent(
-    var x: Float = 0f,
-    var y: Float = 0f
+import android.graphics.Bitmap
+
+data class BitmapComponent(
+    var bitmap: Bitmap? = null
 ) : IGameComponent by Companion {
     companion object : GameComponentCompanion()
 }

@@ -1,6 +1,7 @@
 package com.example.pocketrocket.managers
 
 import android.content.Context
+import android.graphics.Rect
 import android.view.SurfaceHolder
 import com.example.pocketrocket.utils.*
 import java.lang.Exception
@@ -10,7 +11,7 @@ interface GameManagerCallback {
     fun getThreadProperties(): ThreadProperties
 }
 
-class GameManager(private val context: Context, private val surfaceHolder: SurfaceHolder, screenSize: Vec2D) :
+class GameManager(private val context: Context, private val surfaceHolder: SurfaceHolder, screenSize: Rect) :
     SurfaceHolder.Callback, GameManagerCallback {
 
     private val screenProperties = MutableScreenProperties(screenSize)
@@ -25,7 +26,7 @@ class GameManager(private val context: Context, private val surfaceHolder: Surfa
         this.ecsManager = ecsManager
     }
 
-    private val timeManager = TimeManager(30f)
+    private val timeManager = TimeManager(60f)
 
     init {
         timeManager.onUpdate = this::onUpdate
