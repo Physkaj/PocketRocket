@@ -15,6 +15,7 @@ data class GradientComponent(
     var gradientFrom: Vec2D = Vec2D(),
     var gradientTo: Vec2D = Vec2D(),
     var colors: Collection<Int> = listOf(),
+    var colorPositions: Collection<Float>? = null,
     var gradientType: GradientType = GradientType.LINEAR
 ) : IGameComponent by Companion {
     companion object : GameComponentCompanion()

@@ -2,8 +2,6 @@ package com.example.pocketrocket.managers
 
 import android.graphics.Canvas
 import android.graphics.Color
-import android.util.Log
-import android.util.Size
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.systems.*
 import com.example.pocketrocket.utils.SpiralGalaxy
@@ -73,10 +71,17 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
             addComponent<GradientComponent>(this, GradientComponent.componentID).let {
                 it.bitmapWidth = getScreenProperties().width
                 it.bitmapHeight = getScreenProperties().height
-                it.gradientFrom.setValues(1f, 0f)
-                it.gradientTo.setValues(0.2f, 2f)
-                it.colors = listOf(Color.RED, Color.BLACK, Color.BLUE)
-                it.gradientType = GradientType.SWEEP
+                it.gradientFrom.setValues(0f, 0f)
+                it.gradientTo.setValues(0.0f, 1.5f)
+                it.colors = listOf(
+                    Color.BLACK,
+                    Color.parseColor("#FFFFFF"),
+                    Color.parseColor("#FFA540"),
+                    Color.parseColor("#0000A0"),
+                    Color.BLACK
+                )
+                it.colorPositions = listOf(0.1f, 0.1f, 0.2f, 0.7f, 0.9f)
+                it.gradientType = GradientType.RADIAL
             }
         }
 
@@ -85,35 +90,37 @@ class MainMenuECS(callbackGameManger: GameManager) : ECSManager(callbackGameMang
         val centreEntity = createEntity().apply {
             addComponent<PositionComponent>(this, PositionComponent.componentID).pos.clear()
             addComponent<GravityComponent>(this, GravityComponent.componentID).mass = centreMass
-            /*addComponent<ColorComponent>(this, ColorComponent.componentID).color = Color.GREEN
-            addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
-                it.shapeType = ShapeComponent.ShapeType.CIRCLE
-                it.r = 0.01f
-            }*/
         }
 
         // Generate stars
-        val nStars = 500
+        val nStars = 1000
         for (i in 0 until nStars) {
             createEntity().apply {
                 val positionComponent = addComponent<PositionComponent>(this, PositionComponent.componentID)
                 val orbitComponent = addComponent<OrbitComponent>(this, OrbitComponent.componentID)
+                SpiralGalaxy.nArms = 2
+                SpiralGalaxy.maxApoapsis = 1.0f
+                SpiralGalaxy.minApoapsis = 0.3f
+                SpiralGalaxy.minPeriapsis = 0.15f
+                SpiralGalaxy.maxPeriapsis = 0.6f
+                SpiralGalaxy.maxArg = 2 * PI.toFloat()
+                SpiralGalaxy.minArg = 0f
                 SpiralGalaxy.setupStar(
                     positionComponent,
                     orbitComponent
                 )
                 // Color it
                 val rFactor = 1f - (orbitComponent.apoapsis - SpiralGalaxy.minApoapsis) / (SpiralGalaxy.maxApoapsis - SpiralGalaxy.minApoapsis)
-                val gFactor =
-                    1f - (orbitComponent.e - 0.5 * (SpiralGalaxy.minEcc + SpiralGalaxy.maxEcc)).absoluteValue / (SpiralGalaxy.maxEcc - SpiralGalaxy.minEcc)
-                val bFactor = 1f
+                val gFactor = 0f
+                val bFactor =
+                    1f - (orbitComponent.e - 0.5 * (SpiralGalaxy.minEccentricity + SpiralGalaxy.maxEccentricity)).absoluteValue / (SpiralGalaxy.maxEccentricity - SpiralGalaxy.minEccentricity)
                 addComponent<ColorComponent>(this, ColorComponent.componentID).color =
                     (0xff shl 24) or ((rFactor * 0xff).toInt() shl 16) or ((gFactor * 0xff).toInt() shl 8) or (bFactor * 0xff).toInt()
 
                 addComponent<ParentComponent>(this, ParentComponent.componentID).parentEid = centreEntity
                 addComponent<ShapeComponent>(this, ShapeComponent.componentID).let {
                     it.shapeType = ShapeComponent.ShapeType.CIRCLE
-                    it.r = 0.005f
+                    it.r = 0.006f
                 }
             }
         }

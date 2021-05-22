@@ -7,16 +7,20 @@ import kotlin.random.Random
 
 object SpiralGalaxy {
     var nArms: Int = 3
-    var minApoapsis: Float = 0.1f
+    var minApoapsis: Float = 0.3f
     var maxApoapsis: Float = 1f
-    var minEcc: Float = 0.3f
-    var maxEcc: Float = 0.35f
+    var minPeriapsis: Float = 0.2f
+    var maxPeriapsis: Float = 0.8f
+    val maxEccentricity: Float
+        get() = (minApoapsis - minPeriapsis) / (minApoapsis + minPeriapsis)
+    val minEccentricity: Float
+        get() = (maxApoapsis - maxPeriapsis) / (maxApoapsis + maxPeriapsis)
     var minArg: Float = 0.0f
-    var maxAngle: Float = 2f * PI.toFloat()
-    val k1: Float
+    var maxArg: Float = 2f * PI.toFloat()
+    private val k1: Float
         get() = minApoapsis
-    val k2: Float
-        get() = ln(maxApoapsis / minApoapsis) / maxAngle
+    private val k2: Float
+        get() = ln(maxApoapsis / minApoapsis) / maxArg
 
     private fun Random.nextFloat(minValue: Number, maxValue: Number): Float =
         Random.nextDouble(minValue.toDouble(), maxValue.toDouble()).toFloat()
@@ -27,7 +31,7 @@ object SpiralGalaxy {
         // Logarithmic spiral equation
         var argApoapsis: Float = ln(apoapsis / k1) / k2 + minArg
         // Eccentricity
-        val ecc = Random.nextFloat(minEcc, maxEcc)
+        val ecc = Random.nextFloat(minEccentricity, maxEccentricity)
         // Semi-major axis
         val a = apoapsis / (1 + ecc)
         // Semi-minor axis

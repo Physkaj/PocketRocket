@@ -1,11 +1,9 @@
 package com.example.pocketrocket.systems
 
 import android.graphics.*
-import android.graphics.Paint.DITHER_FLAG
 import com.example.pocketrocket.components.*
 import com.example.pocketrocket.entity.EidType
 import com.example.pocketrocket.managers.ECSCallback
-import com.example.pocketrocket.utils.ScreenProperties
 import java.lang.RuntimeException
 import java.util.*
 
@@ -67,7 +65,7 @@ class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 val to = screen.screenCoordinates(gC.gradientTo, bitmapRect)
                 backgroundPaint.shader = LinearGradient(
                     from.x, from.y, to.x, to.y,
-                    gC.colors.toIntArray(), null,
+                    gC.colors.toIntArray(), gC.colorPositions?.toFloatArray(),
                     Shader.TileMode.CLAMP
                 )
                 canvas.drawRect(bitmapRect, backgroundPaint)
@@ -77,7 +75,7 @@ class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 val r1 = screen.screenRadius(gC.gradientR[1], bitmapRect)
                 backgroundPaint.shader = RadialGradient(
                     from.x, from.y, r1,
-                    gC.colors.toIntArray(), null,
+                    gC.colors.toIntArray(), gC.colorPositions?.toFloatArray(),
                     Shader.TileMode.CLAMP
                 )
                 canvas.drawRect(bitmapRect, backgroundPaint)
@@ -92,7 +90,7 @@ class BackgroundRenderingSystem(callback: ECSCallback) : GameSystem(callback) {
                 val r0 = screen.screenRadius(gC.gradientR[0], bitmapRect)
                 backgroundPaint.shader = SweepGradient(
                     from.x, from.y,
-                    gC.colors.toIntArray(), null
+                    gC.colors.toIntArray(), gC.colorPositions?.toFloatArray()
                 )
                 canvas.drawRect(bitmapRect, backgroundPaint)
                 if (r0 > 0f) {
